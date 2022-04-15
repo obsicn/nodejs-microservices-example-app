@@ -7,10 +7,12 @@ You will find files in different versions in this repository
   - `v0` are the original files without any Otel instrumentation
   - `v1` are files with Otel Instrumentation sending output (traces or metrics) to console logs
   - `v2` are files with Otel Instrumentation sending output to otel-collector
+    - `v2a` is using on HTTP protocol for sending traces
+    - `v2b` is using on GRPC protocol for sending traces
   - `v3` are files with Otel Instrumentation sending output to otel-collector, and otel-Collector sending them to different backends (Jaeger and Lightstep)
 
 
-## Add auto-instrumentation to your code
+## v1 - Add auto-instrumentation to your code
 
   - Follow the steps below for each nodejs component, ie `/web` and `/service`
 
@@ -51,7 +53,7 @@ web               | }
   ```
 
 
-### Add OpenTelemetry collector
+## v2a - Add OpenTelemetry collector (http)
 
 - Edit `docker-compose.yml` file in root folder
   - add an OpenTelemetry collector container using lines below (note we will use the collector from contrib community as it contains more receivers, processors and exporters)
@@ -129,7 +131,7 @@ service:
   - replace the console exporter
     - replace `traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),`
     - by `traceExporter: new OTLPTraceExporter({}),`
-      (you can put the collector URL as property here instead of using environment variables in docker-compose, simply replace `{}` by `{url: 'http://otel-collector:4318/v1/traces'})`
+      (you can put the collector URL as property here instead of using environment variables in docker-compose, simply replace `{}` by `{url: 'http://otel-collector:4318/v1/traces'}`
 
 - Rebuild and restart you docker-compose `docker-compose up --build`
 
@@ -138,9 +140,26 @@ service:
   - Both in the otel-collector container console and in page http://127.0.0.1:55679/debug/tracez, you should see a new trace appearing
 
 - Now test again your application on pages http://127.0.0.1:4000 and http://127.0.0.1:4000/api/data
+  - you should also see trace appearing in your collector console
 
 
-## Add back-ends
+## v2b - Add OpenTelemetry collector (grpc)
+
+- Instructions are very similar to the one for http, except you replace everywhere `http` by `grpc`
+
+- beware of the following exceptions:
+  - you don't have to update the collector `config.yaml` as we expose receivers for both protocols
+  - the port for grpc is 4317 (it replaces 4318 for http)
+  - for nodeJS, install module `@opentelemetry/exporter-trace-otlp-grpc` and if you want to put url in your code, you should use `{url: 'grpc://otel-collector:4317'}` (no more `/v1/traces`)
+
+  - for example, in docker-compose, the endpoint variable is now
+
+    `- OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317`
+
+  - Should you use grpc or http? It depends on your tools/framework support. if possible use grpc as it is http/v2 and more performant, but some tools or framework still don't support it well (ex: GCP Cloud run containers)
+
+
+## v3 - Add back-ends
 
 - OpenTelemetry instrumentation was added with below changes
   - installing opentelemetry libraries for `web`and `service`
