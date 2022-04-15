@@ -56,10 +56,13 @@ services:
      - service
     restart: always
 
+## TELEMETRY CONTAINERS
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.40.0
     container_name: otel-collector
+    environment:
+      - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
     ports:
       # This is default port for listening to GRPC protocol
       - 4317:4317
@@ -69,3 +72,10 @@ services:
       - 55679:55679
     volumes:
       - ./otel-collector/conf:/etc/otel
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.30
+    container_name: jaeger
+    ports:
+      - 14250:14250
+      - 16686:16686

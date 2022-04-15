@@ -9,7 +9,12 @@ You will find files in different versions in this repository
   - `v2` are files with Otel Instrumentation sending output to otel-collector
     - `v2a` is using on HTTP protocol for sending traces
     - `v2b` is using on GRPC protocol for sending traces
-  - `v3` are files with Otel Instrumentation sending output to otel-collector, and otel-Collector sending them to different backends (Jaeger and Lightstep)
+  - `v3` are files with Otel Instrumentation sending output to otel-collector (using grpc), and otel-Collector sending them to different backends (Jaeger and Lightstep)
+  - `v4` are files when we add custom attributes to the auto-instrumentation
+  - `v5` are files when we add metrics
+  - `v6` are files when we add custom metrics to the auto-instrumentation
+
+If you don't find files in a specific version, it may just be because this file is not impacted by the new features we are adding
 
 
 ## v1 - Add auto-instrumentation to your code
@@ -41,7 +46,7 @@ You will find files in different versions in this repository
   - Rebuild your application containers with `docker-compose up --build`
 
   - Test again your application going to http://localhost:4000 and http://localhost:4001/api/data
-    - You should see a Json trace file in the logs of each component, like:
+    - you should see a json trace file in the logs of each component, like:
     ```
     {
 web               |   traceId: '96c2e7afc176f9ac78c19a5ea37fda35',
@@ -128,7 +133,7 @@ service:
   `const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');`
   (at the beginning of the file where all const are defined)
 
-  - replace the console exporter
+  - Replace the console exporter
     - replace `traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),`
     - by `traceExporter: new OTLPTraceExporter({}),`
       (you can put the collector URL as property here instead of using environment variables in docker-compose, simply replace `{}` by `{url: 'http://otel-collector:4318/v1/traces'}`
@@ -137,7 +142,7 @@ service:
 
 - Test standalone your collector by sending him a trace
   - from `./otel-collector` folder, run `curl -iv -H "Content-Type: application/json" http://127.0.0.1:4318/v1/traces -d @./test/small_data.json`
-  - Both in the otel-collector container console and in page http://127.0.0.1:55679/debug/tracez, you should see a new trace appearing
+  - both in the otel-collector container console and in page http://127.0.0.1:55679/debug/tracez, you should see a new trace appearing
 
 - Now test again your application on pages http://127.0.0.1:4000 and http://127.0.0.1:4000/api/data
   - you should also see trace appearing in your collector console
@@ -147,7 +152,7 @@ service:
 
 - Instructions are very similar to the one for http, except you replace everywhere `http` by `grpc`
 
-- beware of the following exceptions:
+- Beware of the following exceptions:
   - you don't have to update the collector `config.yaml` as we expose receivers for both protocols
   - the port for grpc is 4317 (it replaces 4318 for http)
   - for nodeJS, install module `@opentelemetry/exporter-trace-otlp-grpc` and if you want to put url in your code, you should use `{url: 'grpc://otel-collector:4317'}` (no more `/v1/traces`)
@@ -156,17 +161,87 @@ service:
 
     `- OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317`
 
-  - Should you use grpc or http? It depends on your tools/framework support. if possible use grpc as it is http/v2 and more performant, but some tools or framework still don't support it well (ex: GCP Cloud run containers)
+  - should you use grpc or http? It depends on your tools/framework support. if possible use grpc as it is http/v2 and more performant, but some tools or framework still don't support it well (ex: GCP Cloud run containers)
+
+- Once done, don't forget to rebuild and restart you docker-compose `docker-compose up --build`
 
 
-## v3 - Add back-ends
+## v3 - Add backends
 
-- OpenTelemetry instrumentation was added with below changes
-  - installing opentelemetry libraries for `web`and `service`
-  - Add jaeger and opentelemetry collector contrib container in `docker-compose.yml` file
-  - Add `/otel-collector` folder with collector configuration file and source file for auto-instrumentation
-  - Add auto-instrumentation of nodejs code each time the runtime is started by updating `nodemon.json` file (see https://opentelemetry.io/docs/instrumentation/js/getting-started/nodejs/)
-  - Start the containers with build option the first time `docker-compose up --build`
+Here, we will add a local and a remote backend behind the collector in order to provide gui and analysis tools to our traces.
+
+- Edit the collector `config.yaml` file
+  - in the `exporters:` section, add the following
+```
+exporters:
+  logging:
+    loglevel: debug
+
+  # configuring otlp to Lightstep public satellites
+  otlp/lightstep:
+    endpoint: ingest.lightstep.com:443
+    headers:
+      "lightstep-access-token": "${LIGHTSTEP_ACCESS_TOKEN}"
+    tls:
+      insecure: false
+      insecure_skip_verify: true
+#      cert_file: file.cert
+#      key_file: file.key
+#      ca_file:
+
+  # configure collector to send data to jaeger
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+```
+
+  - in the `services:` section, edit your `traces:` pipeline with the following
+```
+pipelines:
+  traces:
+    receivers: [otlp]
+    processors: [batch]
+    exporters: [logging, jaeger, otlp/lightstep]
+```
+  - save you updates
+
+- Edit the `docker-compose.yml` file
+  - add the jaeger container
+```
+jaeger:
+  image: jaegertracing/all-in-one:1.30
+  container_name: jaeger
+  ports:
+    - 14250:14250
+    - 16686:16686
+```
+
+  - add an environment variable for your otel collector container
+```
+environment:
+  - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
+```
+
+- On the shell windows where you run your docker-compose command, export the value of you LIGHTSTEP_ACCESS_TOKEN:
+`export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>`
+
+- Restart you docker-compose `docker-compose up` (no need to rebuild as we don't change code)
+
+- Test again you application with http://localhost:4000 and http://localhost:4001/Api/data and look at results in
+  - zpages: http://127.0.0.1:55679/debug/tracez
+  - jaeger: http://localhost:16686/search
+  - lightstep: https://app.lightstep.com/<your_project>/explorer
+
+
+## v4 - Add custom attributes
+
+
+## v5 - Add resources metrics
+
+
+## v5 - Add custom metrics to your traces
+
 
 
 ## Resources
@@ -183,3 +258,4 @@ https://github.com/open-telemetry/opentelemetry-collector
 https://github.com/open-telemetry/opentelemetry-collector-contrib
 
 OpenTelemetry NodeJS Github project
+https://github.com/open-telemetry/opentelemetry-js
