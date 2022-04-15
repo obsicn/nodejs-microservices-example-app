@@ -8,16 +8,16 @@ services:
      - "4002:27017"
     restart: always
 
-#  db-fixture:
-#    image: db-fixture
-#    build: ./db-fixture
-#    container_name: db-fixture
-#    depends_on:
-#      - db
-
+  db-fixture:
+    image: db-fixture
+    build: ./db-fixture
+    container_name: db-fixture
+    depends_on:
+      - db
+    
   service:
     image: service
-    build:
+    build: 
       context: ./service
       dockerfile: Dockerfile-dev
     container_name: service
@@ -30,15 +30,13 @@ services:
      - PORT=80
      - DBHOST=mongodb://db:27017
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-     - OTEL_RESOURCE_ATTRIBUTES=service.name=service
     depends_on:
      - db
     restart: always
 
   web:
     image: web
-    build:
+    build: 
       context: ./web
       dockerfile: Dockerfile-dev
     container_name: web
@@ -50,22 +48,7 @@ services:
     environment:
      - PORT=80
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-     - OTEL_RESOURCE_ATTRIBUTES=service.name=web
     depends_on:
      - service
     restart: always
 
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.40.0
-    container_name: otel-collector
-    ports:
-      # This is default port for listening to GRPC protocol
-      - 4317:4317
-      # This is default port for listening to HTTP protocol
-      - 4318:4318
-      # This is default port for zpages debugging
-      - 55679:55679
-    volumes:
-      - ./otel-collector/conf:/etc/otel

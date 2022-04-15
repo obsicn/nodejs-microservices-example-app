@@ -1,25 +1,26 @@
 # nodejs-microservices-example
 
-Example of Node.js microservices setup using Docker, Docker-Compose, Kubernetes and Terraform.
+Example of Node.js microservices setup using Docker, Docker-Compose and OpenTelemetry.
 
-[Click here to support my work](https://www.codecapers.com.au/about#support-my-work)
+This is inspired from project: https://github.com/ashleydavis/nodejs-microservices-example
 
 Need to build a microservices application? Learn how to do this with [Bootstrapping Microservices](http://bit.ly/2o0aDsP).
 
-Need to do exploratory coding, data analysis and visualization in JavaScript/TypeScript? [Check out Data-Forge Notebook](http://www.data-forge-notebook.com/)
-
-Based on some of my previous examples:
-
-- https://github.com/ashleydavis/docker-compose-nodejs-example
-- https://github.com/ashleydavis/docker-compose-nodejs-with-typescript-example
-- https://github.com/ashleydavis/nodejs-docker-build-for-bitbucket-pipelines
-- https://github.com/ashleydavis/terraform-azure-example-for-bitbucket-pipelines
 
 ## Requirements
 
 - You should have [Docker Desktop](https://www.docker.com/products/docker-desktop) installed.
-- To provision on Azure create a service principle for authentication: [https://www.terraform.io/docs/providers/azurerm/authenticating_via_service_principal.html](https://www.terraform.io/docs/providers/azurerm/authenticating_via_service_principal.html).
-- You need an Azure storage account and container to store Terraform state: [https://docs.microsoft.com/en-us/azure/terraform/terraform-create-k8s-cluster-with-tf-and-aks#set-up-azure-storage-to-store-terraform-state](https://docs.microsoft.com/en-us/azure/terraform/terraform-create-k8s-cluster-with-tf-and-aks#set-up-azure-storage-to-store-terraform-state)
+
+
+## Installing OpenTelemetry
+
+- Please refer to file `INSTALLING_OTEL.md`
+
+- You will find files in different versions in this repository
+  - `v0` are the original files without any Otel instrumentation
+  - `v1` are files with Otel Instrumentation sending output (traces or metrics) to console logs
+  - `v2` are files with Otel Instrumentation sending output to otel-collector
+  - `v3` are files with Otel Instrumentation sending output to otel-collector, and otel-Collector sending them to different backends (Jaeger and Lightstep)
 
 
 ## Important files
@@ -35,6 +36,7 @@ Based on some of my previous examples:
 - service/              -> An example microservice.
 - web/                  -> Example microservice with a front-end.
 
+
 ## Starting the microservices application
 
 Follow the steps in this section to book the microservices application for developent using Docker.
@@ -45,7 +47,7 @@ Change directory to the microservices application:
 cd nodejs-microservices-example
 ```
 
-Use Docker Compose to start the microservies application:
+Use Docker Compose to start the microservices application:
 
 ```bash
 docker compose up
@@ -69,46 +71,24 @@ The Mongodb database is available:
 
     mongodb://127.0.0.1:4002
 
+The opentelemetry zpages for debugging are available:
+
+    http://127.0.0.1:55679/debug/servicez
+    http://127.0.0.1:55679/debug/tracez
+
+The jaeger tracing is available:
+
+    http://127.0.0.1:16686
+
+The lightstep tracing and metrics are available:
+
+    http://app.lightstep.com
+
+(you should create a free account from https://app.lightstep.com/signup/developer)
+
+
+
 In the dev environment updates to the code on the host OS automatically flow through to the microservices in the Docker containers which are rebooted automatically using nodemon. This means you can edit code without having to restart Docker Compose.
-
-## Starting the application in production
-
-### Provision the cloud system using Terraform
-
-Please have Terraform and Azure CLI installed.
-
-### Environment variables for provisioning (Azure)
-
-Environment variables must be set before running these scripts.
-
-To push images to your private Docker register set these variables:
-- DOCKER_REGISTRY -> The hostname for your Docker registry.
-- DOCKER_UN -> Username for your Docker registry.
-- DOCKER_PW -> Password for your Docker registry.
-- VERSION -> The version of the software you are releasing, used to tag the Docker image..
-
-To provision this application in the cloud you need to set the following environment variables to authenticate with Azure:
-
-- ARM_SUBSCRIPTION_ID
-- ARM_CLIENT_ID
-- ARM_CLIENT_SECRET 
-- ARM_TENANT_ID
-
-Another simpler way to authenticate is to use the following command (although this is manual and so won't work for continous delivery):
-
-```bash
-az login
-```
-
-For more details on these environment variables please see [the Terraform docs for the Azure provider]  (https://www.terraform.io/docs/providers/azurerm/index.html#argument-reference).
-
-For storing Terraform state in Azure storage set these environment variables:
-- TF_BACKEND_RES_GROUP
-- TF_BACKEND_STORAGE_ACC
-- TF_BACKEND_CONTAINER
-
-For storing and Terraform state and to select the Kubernetes cluster for deployment, set the following environment variable:
-- ENVIRONMENT -> Set this to 'test' or 'production'.
 
 #### Run scripts to build, provision and deploy
 
@@ -151,6 +131,12 @@ You can also run all the build scripts in go using:
 ```bash
 ./scripts/build.sh
 ```
+
+You can also use the build from docker-compose
+```
+docker-compose up --build
+```
+
 
 ### Integration with Bitbucket Pipelines
 

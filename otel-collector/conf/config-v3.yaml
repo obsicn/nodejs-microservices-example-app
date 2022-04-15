@@ -1,0 +1,151 @@
+extensions:
+  # This extension is used to provide a healthcheck endpoint
+  health_check:
+
+  # This extension is used to provide a debugging zpages traces_endpoint
+  # see https://github.com/open-telemetry/opentelemetry-collector/blob/main/extension/zpagesextension/README.md for more details
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+
+  docker_stats:
+    endpoint: unix:///var/run/docker.sock
+    collection_interval: 10s
+    timeout: 20s
+
+  hostmetrics:
+    collection_interval: 10s
+    scrapers:
+      cpu:
+      disk:
+      filesystem:
+      load:
+      memory:
+      network:
+      paging:
+#      process:
+
+################################
+### NOT SUPPORTED YET
+################################
+#    mongodb:
+#      hosts:
+#        - endpoint: sweagle-mongo:27017
+#      collection_interval: 10s
+#      username: otel
+#      password: $MONGODB_PASSWORD
+#      tls:
+#        insecure: true
+#        insecure_skip_verify: true
+
+
+processors:
+  batch:
+# This is an example of processor to hash a specific key, for example to be PII complian
+#      - action: hash
+#        key: "ssn"
+
+  # This processor will add the service nwme attribute to metrics
+  # This is used for lightstep change intelligence analysis (see https://docs.lightstep.com/docs/register-service-name-attribute)
+  resource:
+    attributes:
+    - action: insert
+      key: "service.name"
+      value: "otel-collector"
+
+  resourcedetection:
+# DOCKER detector not working yet
+#  resourcedetection/docker:
+#    detectors: [env, docker]
+#    timeout: 2s
+#    override: false
+  resourcedetection/system:
+    detectors: [env, system]
+    timeout: 2s
+    override: false
+    system:
+      hostname_sources: [os]
+
+exporters:
+  file:
+    path: /trace.json
+
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+  logging:
+    loglevel: debug
+
+  # configure collector to send data to a local satellite
+  # otlp/lightstep:
+  #   endpoint: satellite:8360
+  #   insecure: true
+  #   headers:
+  #     "lightstep-access-token": "<ACCESS TOKEN>"
+
+  # configuring otlp to public satellites
+  otlp/lightstep:
+    endpoint: ingest.lightstep.com:443
+    headers:
+      "lightstep-access-token": "${LIGHTSTEP_ACCESS_TOKEN}"
+    tls:
+      insecure: false
+      insecure_skip_verify: true
+#      cert_file: file.cert
+#      key_file: file.key
+#      ca_file:
+
+#    otlphttp:
+#      traces_endpoint: https://ingest.lightstep.com:443/traces/otlp/v0.6
+#      metrics_endpoint: https://ingest.lightstep.com:443/metrics/otlp/v0.9
+#      headers:
+#        "lightstep-access-token": "${LIGHTSTEP_ACCESS_TOKEN}"
+#      tls:
+#        insecure: true
+
+  otlp/newrelic:
+    # See config details here: https://docs.newrelic.com/docs/more-integrations/open-source-telemetry-integrations/opentelemetry/opentelemetry-quick-start/
+    #For US:
+    endpoint: https://otlp.nr-data.net:4317
+    #For EMEA:
+    #endpoint: https://otlp.eu01.nr-data.net:4317
+    headers:
+      api-key: ${NEWRELIC_ACCESS_TOKEN}
+    tls:
+      insecure: false
+      insecure_skip_verify: true
+
+  # configure collector to send data to jaeger
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+
+  # configure collector to send data to zipkin
+  zipkin:
+    endpoint: "http://zipkin-server:9411/api/v2/spans"
+    tls:
+      insecure: true
+
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, jaeger, otlp/lightstep]
+#    metrics/local_container:
+#      receivers: [hostmetrics]
+#      processors: [resourcedetection/system, resource]
+#      exporters: [otlp/lightstep]
+    metrics/otlp:
+      receivers: [otlp]
+      processors: []
+      exporters: [logging, otlp/lightstep]
+
+  extensions: [health_check, zpages]
