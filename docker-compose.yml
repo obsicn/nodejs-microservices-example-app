@@ -8,12 +8,12 @@ services:
      - "4002:27017"
     restart: always
 
-#  db-fixture:
-#    image: db-fixture
-#    build: ./db-fixture
-#    container_name: db-fixture
-#    depends_on:
-#      - db
+  db-fixture:
+    image: db-fixture
+    build: ./db-fixture
+    container_name: db-fixture
+    depends_on:
+      - db
 
   service:
     image: service

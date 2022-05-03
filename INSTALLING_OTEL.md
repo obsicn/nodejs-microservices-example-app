@@ -11,8 +11,9 @@ You will find files in different versions in this repository
     - `v2b` is using on GRPC protocol for sending traces
   - `v3` are files with Otel Instrumentation sending output to otel-collector (using grpc), and otel-Collector sending them to different backends (Jaeger and Lightstep)
   - `v4` are files when we add custom attributes to the auto-instrumentation
-  - `v5` are files when we add metrics
-  - `v6` are files when we add custom metrics to the auto-instrumentation
+  - `v5` are files when we add custom spans
+  - `v6` are files when we add metrics
+  - `v7` are files when we add custom metrics to the auto-instrumentation
 
 If you don't find files in a specific version, it may just be because this file is not impacted by the new features we are adding
 
@@ -27,7 +28,7 @@ If you don't find files in a specific version, it may just be because this file 
   npm install @opentelemetry/auto-instrumentations-node
   ```
 
-  - Add in each folder a `tracing.js` file with code below
+  - Add in each `/src` folder, create a `tracing.js` file with code below
   ```
   const opentelemetry = require("@opentelemetry/sdk-node");
   const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
@@ -234,13 +235,36 @@ environment:
   - lightstep: https://app.lightstep.com/<your_project>/explorer
 
 
-## v4 - Add custom attributes
+## v4 - Add custom attributes and log events
+
+- In `/src` folder of the web component, update file `index.js` file with code below:
+    - Add the OpenTelemetry library by putting this at top of your code `const api = require('@opentelemetry/api');`
+
+    - in the `main()` function, in the `app.get("/", (req, res) => {` part, add code to create custom attributes
+```
+// access the current span from active context
+let activeSpan = api.trace.getSpan(api.context.active());
+// add an attribute
+activeSpan.setAttribute('nbLoop', nbLoop);
+activeSpan.setAttribute('weather', weather);
+```
+
+- in the `main()` function, in the `app.get("/api/data", (req, res) => {` part, add code to create custom log events
+```
+  // access the current span from active context
+  let activeSpan = api.trace.getSpan(api.context.active());
+  // log an event and include some structured data.
+  activeSpan.addEvent(`Running on http://${HOST}:${PORT}`);
+  activeSpan.addEvent(`Calling the /api/data service`);
+```
+
+## v5 - Create custom spans
 
 
-## v5 - Add resources metrics
+## v6 - Add resources metrics
 
 
-## v5 - Add custom metrics to your traces
+## v7 - Add custom metrics to your traces
 
 
 
@@ -259,3 +283,10 @@ https://github.com/open-telemetry/opentelemetry-collector-contrib
 
 OpenTelemetry NodeJS Github project
 https://github.com/open-telemetry/opentelemetry-js
+
+
+## Troubleshoot
+
+- getting error `"error": "Permanent error: rpc error: code = Internal desc = unexpected HTTP status code received from server: 400 (Bad Request); malformed header: missing HTTP content-type"` when sending spans to Lightstep
+  => check value of your LIGHTSTEP_ACCESS_TOKEN with `echo $LIGHTSTEP_ACCESS_TOKEN`
+  => if not set, initialize it with `export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>` then deploy again with `docker-compose up`

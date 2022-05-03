@@ -1,16 +1,12 @@
 'use strict';
 
-const api = require('@opentelemetry/api');
 const express = require('express');
-const mongodb = require('mongodb');
+const axios = require('axios');
 
 // Constants
 const PORT = process.env.PORT || 80;
 const HOST = process.env.HOST || "0.0.0.0";
-const DBHOST = process.env.DBHOST || "mongodb://localhost:27017";
-// create a tracer and name it after your package
-//const tracer = opentelemetry.trace.getTracer('myInstrumentation');
-
+const SERVICE_URL = process.env.SERVICE_URL || "http://service"; 
 
 // App
 const app = express();
@@ -31,19 +27,18 @@ function startServer() {
 
 async function main() {
 
-    const client = await mongodb.MongoClient.connect(DBHOST);
-    const db = client.db("mydb");
+    app.get("/", (req, res) => {
+        res.send('Hello computer!\n');
+    });
 
     app.get("/api/data", (req, res) => {
-        const collection = db.collection("mycollection");
-        collection.find().toArray()
-            .then(data => {
-                res.json(data);
+        axios.get(SERVICE_URL + "/api/data")
+            .then(response => {
+                res.json(response.data);
             })
             .catch(err => {
-                console.error("Error retreiving data.");
+                console.error("Error forwarding request:");
                 console.error(err && err.stack || err);
-
                 res.sendStatus(500);
             });
     });
@@ -51,7 +46,7 @@ async function main() {
     await startServer();
 }
 
-main()
+main() 
     .then(() => console.log("Online"))
     .catch(err => {
         console.error("Failed to start!");

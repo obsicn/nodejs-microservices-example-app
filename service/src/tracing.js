@@ -1,6 +1,6 @@
 /* tracing.js */
 
-// Require dependencies
+// Required dependencies
 const opentelemetry = require("@opentelemetry/sdk-node");
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
 const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");

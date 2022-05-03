@@ -7,9 +7,8 @@ const axios = require('axios');
 const PORT = process.env.PORT || 80;
 const HOST = process.env.HOST || "0.0.0.0";
 const SERVICE_URL = process.env.SERVICE_URL || "http://service";
-// create a tracer and name it after your package
+// import the open telemetry api library
 const api = require('@opentelemetry/api');
-const tracer = api.trace.getTracer('myInstrumentation');
 
 // App
 const app = express();
@@ -100,11 +99,6 @@ function startServer() {
                 reject(err);
             }
             else {
-                let span = tracer.startSpan("startServer");
-                // log an event and include some structured data.
-                span.addEvent(`Running on http://${HOST}:${PORT}`);
-                //console.log(`Running on http://${HOST}:${PORT}`);
-                span.end();
                 resolve();
             }
         });
