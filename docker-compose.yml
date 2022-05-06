@@ -8,12 +8,12 @@ services:
      - "4002:27017"
     restart: always
 
-  db-fixture:
-    image: db-fixture
-    build: ./db-fixture
-    container_name: db-fixture
-    depends_on:
-      - db
+#  db-fixture:
+#    image: db-fixture
+#    build: ./db-fixture
+#    container_name: db-fixture
+#    depends_on:
+#      - db
 
   service:
     image: service
@@ -30,7 +30,7 @@ services:
      - PORT=80
      - DBHOST=mongodb://db:27017
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
+     - OTEL_EXPORTER_OTLP_ENDPOINT=http://satellite:8383
      - OTEL_RESOURCE_ATTRIBUTES=service.name=service
     depends_on:
      - db
@@ -50,7 +50,7 @@ services:
     environment:
      - PORT=80
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
+     - OTEL_EXPORTER_OTLP_ENDPOINT=http://satellite:8383
      - OTEL_RESOURCE_ATTRIBUTES=service.name=web
     depends_on:
      - service
@@ -58,24 +58,43 @@ services:
 
 ## TELEMETRY CONTAINERS
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.40.0
-    container_name: otel-collector
+  satellite:
+    image: lightstep/microsatellite:latest
+    container_name: satellite
     environment:
-      - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
+      - COLLECTOR_SATELLITE_KEY=eyJhbGciOiJIUzI1NiIsImtpZCI6IjIwMTktMDMtMDEiLCJ0eXAiOiJKV1QifQ.eyJzY29wZSI6eyJjb2xsZWN0b3IiOnsicmVhZHdyaXRlIjp0cnVlfX0sImF1ZF9pZCI6IjZyeWFqMjRtZ3dmcHJtcXB0d3FpNHl2aHZoc2x6cmwybmZmcWVqZ3poaDI1Ynh0YSIsImF1ZCI6IkRpbWl0cmlzIFRlc3QgRW52IiwiZXhwIjoxNjgzMTA3MDMzLCJqdGkiOiJ5amQ1bDR1d2h3Zm11NGdqZ2UyaWl3bzRteGNnMmh3amJncXZ0aGttMmJsNXV4YnUiLCJpYXQiOjE2NTE1NzEwMzMsImlzcyI6ImxpZ2h0c3RlcC5jb20ifQ.FHq-5_eJR5wIAvMt8qr-aS34LAlIAngkQQgqdbwmYmw
+      - COLLECTOR_DISABLE_ACCESS_TOKEN_CHECKING=true
+      - COLLECTOR_PROJECT_NAME=petclinic
+      - COLLECTOR_POOL=petclinic-dev
+      - COLLECTOR_INGESTION_TAGS=deployment.environment:dev
+      - COLLECTOR_PLAIN_PORT=8383
+      - COLLECTOR_SECURE_PORT=9393
+      - COLLECTOR_DIAGNOSTIC_PORT=8000
+      - COLLECTOR_ADMIN_PLAIN_PORT=8180
     ports:
-      # This is default port for listening to GRPC protocol
-      - 4317:4317
-      # This is default port for listening to HTTP protocol
-      - 4318:4318
-      # This is default port for zpages debugging
-      - 55679:55679
-    volumes:
-      - ./otel-collector/conf:/etc/otel
+      - "8383:8383" #Span ingest, Required for unsecure traffic, or secure traffic that terminates it's secure status before it hits the satellite
+      - "9393:9393" #Span ingest Required for secure traffic
+      - "8000:8000" #Diagnostics
+      - "8180:8180" #COLLECTOR_ADMIN_PLAIN_PORT, Required for health checks
 
-  jaeger:
-    image: jaegertracing/all-in-one:1.30
-    container_name: jaeger
-    ports:
-      - 14250:14250
-      - 16686:16686
+#  otel-collector:
+#    image: otel/opentelemetry-collector-contrib:0.40.0
+#    container_name: otel-collector
+#    environment:
+#      - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
+#    ports:
+      # This is default port for listening to GRPC protocol
+#      - 4317:4317
+      # This is default port for listening to HTTP protocol
+#      - 4318:4318
+      # This is default port for zpages debugging
+#      - 55679:55679
+#    volumes:
+#      - ./otel-collector/conf:/etc/otel
+
+#  jaeger:
+#    image: jaegertracing/all-in-one:1.30
+#    container_name: jaeger
+#    ports:
+#      - 14250:14250
+#      - 16686:16686

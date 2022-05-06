@@ -100,11 +100,11 @@ function startServer() {
                 reject(err);
             }
             else {
-                let span = tracer.startSpan("startServer");
+                //let span = tracer.startSpan("startServer");
                 // log an event and include some structured data.
-                span.addEvent(`Running on http://${HOST}:${PORT}`);
+                //span.addEvent(`Running on http://${HOST}:${PORT}`);
                 //console.log(`Running on http://${HOST}:${PORT}`);
-                span.end();
+                //span.end();
                 resolve();
             }
         });
