@@ -258,6 +258,7 @@ activeSpan.setAttribute('weather', weather);
   activeSpan.addEvent(`Calling the /api/data service`);
 ```
 
+
 ## v5 - Create custom spans
 
 
