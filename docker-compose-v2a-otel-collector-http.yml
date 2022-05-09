@@ -58,7 +58,7 @@ services:
 
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.40.0
+    image: otel/opentelemetry-collector-contrib:0.47.0
     container_name: otel-collector
     ports:
       # This is default port for listening to GRPC protocol
@@ -68,4 +68,4 @@ services:
       # This is default port for zpages debugging
       - 55679:55679
     volumes:
-      - ./otel-collector/conf:/etc/otel
+      - ./otel-collector/conf:/etc/otelcol-contrib/

@@ -83,6 +83,15 @@ services:
       - 14250:14250
       - 16686:16686
 
+#  zipkin-server:
+#    image: openzipkin/zipkin
+#    container_name: zipkin-server
+#    mem_limit: 512M
+#    environment:
+#      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
+#    ports:
+#      - 9412:9411
+
 
 ## THIS IS TO TEST WITH LIGHTSTEP SATELLITE INSTEAD OF COLLECTOR
 #  satellite:
