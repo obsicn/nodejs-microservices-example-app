@@ -58,6 +58,22 @@ services:
      - service
     restart: always
 
+
+## LOAD GENERATOR
+#  load-generator:
+#    image: loadimpact/k6:latest
+#    container_name: load-generator
+#    command: run --include-system-env-vars /src/load-test.js
+#    environment:
+#      - TARGET_HOST=web
+#      - TARGET_PORT=80
+#      - DURATION=30s
+#    volumes:
+#      - ./load-generator/src:/src/
+#    depends_on:
+#      - web
+
+
 ## TELEMETRY CONTAINERS
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.47.0
@@ -72,6 +88,7 @@ services:
       # This is default port for zpages debugging
       - 55679:55679
     volumes:
+      # for otel/opentelemetry-collector-contrib:0.47.0 and above
       - ./otel-collector/conf:/etc/otelcol-contrib/
       # for otel/opentelemetry-collector-contrib:0.40.0 and below
       #- ./otel-collector/conf:/etc/otel

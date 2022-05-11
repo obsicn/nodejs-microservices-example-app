@@ -24,7 +24,7 @@ exporters:
   # configuring otlp to public satellites
   otlp/lightstep:
     endpoint: ingest.lightstep.com:443
-    headers:
+    headers: 
       "lightstep-access-token": "${LIGHTSTEP_ACCESS_TOKEN}"
     tls:
       insecure: false
