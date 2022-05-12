@@ -1,6 +1,5 @@
 'use strict';
 
-const api = require('@opentelemetry/api');
 const express = require('express');
 const mongodb = require('mongodb');
 
@@ -8,9 +7,6 @@ const mongodb = require('mongodb');
 const PORT = process.env.PORT || 80;
 const HOST = process.env.HOST || "0.0.0.0";
 const DBHOST = process.env.DBHOST || "mongodb://localhost:27017";
-// create a tracer and name it after your package
-//const tracer = opentelemetry.trace.getTracer('myInstrumentation');
-
 
 // App
 const app = express();

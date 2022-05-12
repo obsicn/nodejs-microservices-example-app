@@ -21,11 +21,12 @@ Need to build a microservices application? Learn how to do this with [Bootstrapp
   - `v1` are files with Otel Instrumentation sending output (traces or metrics) to console logs
   - `v2` are files with Otel Instrumentation sending output to otel-collector
   - `v3` are files with Otel Instrumentation sending output to otel-collector, and otel-Collector sending them to different backends (Jaeger and Lightstep)
-
+  - `v4` are files when we add custom attributes and log events to the auto-instrumentation
 
 ## Important files
 
 - bitbucket-pipelines.yml -> Script that builds this system in the cloud on push to a Bitbucket repo.
+
 - docker-compose.yml -> Script that boots the whole system locally for development and testing.
 - db-fixture/           -> Docker container configure to load a database fixture into the MongoDB database.
 - scripts/              -> Scripts for building and provisioning the system.

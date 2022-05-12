@@ -10,7 +10,7 @@ You will find files in different versions in this repository
     - `v2a` is using on HTTP protocol for sending traces
     - `v2b` is using on GRPC protocol for sending traces
   - `v3` are files with Otel Instrumentation sending output to otel-collector (using grpc), and otel-Collector sending them to different backends (Jaeger and Lightstep)
-  - `v4` are files when we add custom attributes to the auto-instrumentation
+  - `v4` are files when we add custom attributes and log events to the auto-instrumentation
   - `v5` are files when we add custom spans
   - `v6` are files when we add metrics
   - `v7` are files when we add custom metrics to the auto-instrumentation
@@ -28,7 +28,7 @@ If you don't find files in a specific version, it may just be because this file 
   npm install @opentelemetry/auto-instrumentations-node
   ```
 
-  - Add in each `/src` folder, create a `tracing.js` file with code below
+  - In each component `/src` folder, create a `tracing.js` file with code below
   ```
   const opentelemetry = require("@opentelemetry/sdk-node");
   const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");

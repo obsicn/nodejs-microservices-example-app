@@ -30,9 +30,6 @@ services:
      - PORT=80
      - DBHOST=mongodb://db:27017
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-#     - OTEL_EXPORTER_OTLP_ENDPOINT=http://satellite:8383
-     - OTEL_RESOURCE_ATTRIBUTES=service.name=service
     depends_on:
      - db
     restart: always
@@ -51,13 +48,9 @@ services:
     environment:
      - PORT=80
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-#     - OTEL_EXPORTER_OTLP_ENDPOINT=http://satellite:8383
-     - OTEL_RESOURCE_ATTRIBUTES=service.name=web
     depends_on:
      - service
     restart: always
-
 
 ## LOAD GENERATOR
 #  load-generator:
@@ -72,60 +65,3 @@ services:
 #      - ./load-generator/src:/src/
 #    depends_on:
 #      - web
-
-
-## TELEMETRY CONTAINERS
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.47.0
-    container_name: otel-collector
-    environment:
-      - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
-    ports:
-      # This is default port for listening to GRPC protocol
-      - 4317:4317
-      # This is default port for listening to HTTP protocol
-      - 4318:4318
-      # This is default port for zpages debugging
-      - 55679:55679
-    volumes:
-      # for otel/opentelemetry-collector-contrib:0.47.0 and above
-      - ./otel-collector/conf:/etc/otelcol-contrib/
-      # for otel/opentelemetry-collector-contrib:0.40.0 and below
-      #- ./otel-collector/conf:/etc/otel
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.30
-    container_name: jaeger
-    ports:
-      - 14250:14250
-      - 16686:16686
-
-#  zipkin-server:
-#    image: openzipkin/zipkin
-#    container_name: zipkin-server
-#    mem_limit: 512M
-#    environment:
-#      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
-#    ports:
-#      - 9412:9411
-
-
-## THIS IS TO TEST WITH LIGHTSTEP SATELLITE INSTEAD OF COLLECTOR
-#  satellite:
-#    image: lightstep/microsatellite:latest
-#    container_name: satellite
-#    environment:
-#      - COLLECTOR_SATELLITE_KEY=${LIGHTSTEP_SATELLITE_KEY}
-#      - COLLECTOR_DISABLE_ACCESS_TOKEN_CHECKING=true
-#      - COLLECTOR_PROJECT_NAME=petclinic
-#      - COLLECTOR_POOL=petclinic-dev
-#      - COLLECTOR_INGESTION_TAGS=deployment.environment:dev
-#      - COLLECTOR_PLAIN_PORT=8383
-#      - COLLECTOR_SECURE_PORT=9393
-#      - COLLECTOR_DIAGNOSTIC_PORT=8000
-#      - COLLECTOR_ADMIN_PLAIN_PORT=8180
-#    ports:
-#      - "8383:8383" #Span ingest, Required for unsecure traffic, or secure traffic that terminates it's secure status before it hits the satellite
-#      - "9393:9393" #Span ingest Required for secure traffic
-#      - "8000:8000" #Diagnostics
-#      - "8180:8180" #COLLECTOR_ADMIN_PLAIN_PORT, Required for health checks
