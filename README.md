@@ -21,7 +21,8 @@ Need to build a microservices application? Learn how to do this with [Bootstrapp
   - `v1` are files with Otel Instrumentation sending output (traces or metrics) to console logs
   - `v2` are files with Otel Instrumentation sending output to otel-collector
   - `v3` are files with Otel Instrumentation sending output to otel-collector, and otel-Collector sending them to different backends (Jaeger and Lightstep)
-  - `v4` are files when we add custom attributes and log events to the auto-instrumentation
+  - `v4` are files when we add custom attributes, log events, and new spans to the auto-instrumentation
+
 
 ## Important files
 

@@ -10,10 +10,9 @@ You will find files in different versions in this repository
     - `v2a` is using on HTTP protocol for sending traces
     - `v2b` is using on GRPC protocol for sending traces
   - `v3` are files with Otel Instrumentation sending output to otel-collector (using grpc), and otel-Collector sending them to different backends (Jaeger and Lightstep)
-  - `v4` are files when we add custom attributes and log events to the auto-instrumentation
-  - `v5` are files when we add custom spans
-  - `v6` are files when we add metrics
-  - `v7` are files when we add custom metrics to the auto-instrumentation
+  - `v4` are files when we add custom attributes, log events, and new spans to the auto-instrumentation
+  - `v5` are files when we add metrics
+  - `v6` are files when we add custom metrics to the auto-instrumentation
 
 If you don't find files in a specific version, it may just be because this file is not impacted by the new features we are adding
 
@@ -237,6 +236,8 @@ environment:
 
 ## v4 - Add custom attributes and log events
 
+- Edit `docker-compose.yml` file, for each line `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>`, add a new attribute `service.version=4.0.0` with a comma separator, so lines become something like `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>,service.version=4.0.0`
+
 - In `/src` folder of the web component, update file `index.js` file with code below:
     - Add the OpenTelemetry library by putting this at top of your code `const api = require('@opentelemetry/api');`
 
@@ -249,23 +250,33 @@ activeSpan.setAttribute('nbLoop', nbLoop);
 activeSpan.setAttribute('weather', weather);
 ```
 
-- in the `main()` function, in the `app.get("/api/data", (req, res) => {` part, add code to create custom log events
+- In the `main()` function, in the `app.get("/api/data", (req, res) => {` part, add code to create custom log events
 ```
   // access the current span from active context
   let activeSpan = api.trace.getSpan(api.context.active());
   // log an event and include some structured data.
   activeSpan.addEvent(`Running on http://${HOST}:${PORT}`);
-  activeSpan.addEvent(`Calling the /api/data service`);
+```
+
+- Replace the `generateWork` function with code below
+```
+async function generateWork(nb) {
+  for (let i = 0; i < Number(nb); i++) {
+    let span = tracer.startSpan(`Looping ${i}`);
+    // log an event and include some structured data.
+    span.addEvent(`*** DOING SOMETHING ${i}`);
+    // wait for 50ms to simulate some work
+    await sleep(50);
+    span.end();
+  }
+}
 ```
 
 
-## v5 - Create custom spans
+## v5 - Add resources metrics
 
 
-## v6 - Add resources metrics
-
-
-## v7 - Add custom metrics to your traces
+## v6 - Add custom metrics to your traces
 
 
 

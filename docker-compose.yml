@@ -31,7 +31,7 @@ services:
      - DBHOST=mongodb://db:27017
      - NODE_ENV=development
      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
-     - OTEL_RESOURCE_ATTRIBUTES=service.name=service
+     - OTEL_RESOURCE_ATTRIBUTES=service.name=service,service.version=4.0.0
     depends_on:
      - db
     restart: always
@@ -51,7 +51,7 @@ services:
      - PORT=80
      - NODE_ENV=development
      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
-     - OTEL_RESOURCE_ATTRIBUTES=service.name=web
+     - OTEL_RESOURCE_ATTRIBUTES=service.name=web,service.version=4.0.0
     depends_on:
      - service
     restart: always
