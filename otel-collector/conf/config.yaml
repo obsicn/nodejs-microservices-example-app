@@ -21,13 +21,32 @@ exporters:
   logging:
     loglevel: debug
 
+  # configuring otlp to public satellites
+  otlp/lightstep:
+    endpoint: ingest.lightstep.com:443
+    headers:
+      "lightstep-access-token": "${LIGHTSTEP_ACCESS_TOKEN}"
+    tls:
+      insecure: false
+      insecure_skip_verify: true
+#      cert_file: file.cert
+#      key_file: file.key
+#      ca_file:
+
+  # configure collector to send data to jaeger
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+
+
 service:
   pipelines:
     # Simple trace pipeline that will send all traces received from otlp protocol to the logs in batch mode
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+      exporters: [logging, jaeger, otlp/lightstep]
 
   # Activate the extension that will allow us to debug this configuration from the collector web interface on port 55679 by default
   extensions: [zpages]

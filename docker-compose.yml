@@ -74,6 +74,8 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.47.0
     container_name: otel-collector
+    environment:
+      - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
     ports:
       # This is default port for listening to GRPC protocol
       - 4317:4317
@@ -83,3 +85,32 @@ services:
       - 55679:55679
     volumes:
       - ./otel-collector/conf:/etc/otelcol-contrib/
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.30
+    container_name: jaeger
+    ports:
+      - 14250:14250
+      - 16686:16686
+
+
+## THIS IS TO USE LIGHTSTEP SATELLITE INSTEAD OF COLLECTOR
+## BETTER FOR PERFORMANCE AND IF YOU NEED ENTERPRISE SUPPORTED VERSION
+#  satellite:
+#    image: lightstep/microsatellite:latest
+#    container_name: satellite
+#    environment:
+#      - COLLECTOR_SATELLITE_KEY=${LIGHTSTEP_SATELLITE_KEY}
+#      - COLLECTOR_DISABLE_ACCESS_TOKEN_CHECKING=true
+#      - COLLECTOR_PROJECT_NAME=nodejs-example
+#      - COLLECTOR_POOL=nodejs-example-dev
+#      - COLLECTOR_INGESTION_TAGS=deployment.environment:dev
+#      - COLLECTOR_PLAIN_PORT=8383
+#      - COLLECTOR_SECURE_PORT=9393
+#      - COLLECTOR_DIAGNOSTIC_PORT=8000
+#      - COLLECTOR_ADMIN_PLAIN_PORT=8180
+#    ports:
+#      - "8383:8383" #Span ingest, Required for unsecure traffic, or secure traffic that terminates it's secure status before it hits the satellite
+#      - "9393:9393" #Span ingest Required for secure traffic
+#      - "8000:8000" #Diagnostics
+#      - "8180:8180" #COLLECTOR_ADMIN_PLAIN_PORT, Required for health checks
