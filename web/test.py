@@ -22,6 +22,6 @@ for i, (output, returncode) in enumerate(pool.imap(child, commands)):
        print("{} command failed: {}".format(i, returncode))
     else:
        print("{} success: {}".format(i, output))
-       times.append(float(output.split('=')[2]))
+       times.append(float(output.split(b'=')[2]))
 
-print 'Average: {}'.format(sum(times) / len(times) if times else 0)
+print('Average: {}'.format(sum(times) / len(times) if times else 0))
