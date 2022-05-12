@@ -30,7 +30,7 @@ services:
      - PORT=80
      - DBHOST=mongodb://db:27017
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+     - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
      - OTEL_RESOURCE_ATTRIBUTES=service.name=service
     depends_on:
      - db
@@ -50,7 +50,7 @@ services:
     environment:
      - PORT=80
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+     - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
      - OTEL_RESOURCE_ATTRIBUTES=service.name=web
     depends_on:
      - service
