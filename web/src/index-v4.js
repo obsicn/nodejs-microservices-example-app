@@ -7,6 +7,10 @@ const axios = require('axios');
 const PORT = process.env.PORT || 80;
 const HOST = process.env.HOST || "0.0.0.0";
 const SERVICE_URL = process.env.SERVICE_URL || "http://service";
+// import the open telemetry api library
+const api = require('@opentelemetry/api');
+// create a tracer and name it after your package
+const tracer = api.trace.getTracer('myInstrumentation');
 
 // App
 const app = express();
@@ -34,9 +38,12 @@ async function checkWeather(weather, res) {
 
 async function generateWork(nb) {
   for (let i = 0; i < Number(nb); i++) {
-    console.log(`*** DOING SOMETHING ${i}`);
+    let span = tracer.startSpan(`Looping ${i}`);
+    // log an event and include some structured data.
+    span.addEvent(`*** DOING SOMETHING ${i}`);
     // wait for 50ms to simulate some work
     await sleep(50);
+    span.end();
   }
 }
 
@@ -45,6 +52,11 @@ async function main() {
     app.get("/", (req, res) => {
         let nbLoop = req.query.loop;
         let weather = req.query.weather;
+        // access the current span from active context
+        let activeSpan = api.trace.getSpan(api.context.active());
+        // add an attribute
+        activeSpan.setAttribute('nbLoop', nbLoop);
+        activeSpan.setAttribute('weather', weather);
         // generate some workload
         if (nbLoop != undefined) {
           generateWork(nbLoop);
@@ -58,6 +70,10 @@ async function main() {
     });
 
     app.get("/api/data", (req, res) => {
+        // access the current span from active context
+        let activeSpan = api.trace.getSpan(api.context.active());
+        // log an event and include some structured data.
+        activeSpan.addEvent(`Running on http://${HOST}:${PORT}`);
         axios.get(SERVICE_URL + "/api/data")
             .then(response => {
                 res.json(response.data);
