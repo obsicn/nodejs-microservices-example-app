@@ -38,11 +38,15 @@ async function checkWeather(weather, res) {
 
 async function generateWork(nb) {
   for (let i = 0; i < Number(nb); i++) {
+    // create a new span
+    // if not put as arg, current span is automatically used as parent
+    // and the span you create automatically become the current one
     let span = tracer.startSpan(`Looping ${i}`);
-    // log an event and include some structured data.
+    // log an event and include some structured data. This replace the logger to file
     span.addEvent(`*** DOING SOMETHING ${i}`);
     // wait for 50ms to simulate some work
     await sleep(50);
+    // don't forget to always end the span to flush data out
     span.end();
   }
 }

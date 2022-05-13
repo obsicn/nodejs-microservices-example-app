@@ -12,36 +12,9 @@ Need to build a microservices application? Learn how to do this with [Bootstrapp
 - You should have [Docker Desktop](https://www.docker.com/products/docker-desktop) installed.
 
 
-## Installing OpenTelemetry
-
-- Please refer to file [INSTALLING_OTEL.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALLING_OTEL.md)
-
-- You will find files in different versions in this repository
-  - `v0` are the original files without any Otel instrumentation
-  - `v1` are files with Otel Instrumentation sending output (traces or metrics) to console logs
-  - `v2` are files with Otel Instrumentation sending output to otel-collector
-  - `v3` are files with Otel Instrumentation sending output to otel-collector, and otel-Collector sending them to different backends (Jaeger and Lightstep)
-  - `v4` are files when we add custom attributes, log events, and new spans to the auto-instrumentation
-
-
-## Important files
-
-- bitbucket-pipelines.yml -> Script that builds this system in the cloud on push to a Bitbucket repo.
-
-- docker-compose.yml -> Script that boots the whole system locally for development and testing.
-- db-fixture/           -> Docker container configure to load a database fixture into the MongoDB database.
-- scripts/              -> Scripts for building and provisioning the system.
-    - infrastructure/   -> Terraform scripts to build the cloud infrastructure.
-        - docker/       -> Terraform scripts to build a private Docker registry.
-        - kubernetes/   -> Terraform scripts to build a Kubernetes cluster to host our Docker containers.
-    - build.sh          -> Master build script. Runs all other scripts in this directory in sequence. Can build this system in the cloud from scratch.
-- service/              -> An example microservice.
-- web/                  -> Example microservice with a front-end.
-
-
 ## Starting the microservices application
 
-Follow the steps in this section to book the microservices application for developent using Docker.
+Follow the steps in this section to boot the microservices application for development using Docker.
 
 Change directory to the microservices application:
 
@@ -61,107 +34,112 @@ To build after you change code:
 docker compose up --build
 ```
 
-A web page is now available:
 
-    http://127.0.0.1:4000
+## Useful URLs for test
 
-An example REST API is also available:
+- web page is available at: http://127.0.0.1:4000
 
-    http://127.0.0.1:4001/api/data
+- You can also query it with: http://127.0.0.1:4000?weather=<weather>
+  - take `sun`, `rain` or `snow` as weather value
 
-The Mongodb database is available:
+- An example REST API is also available: http://127.0.0.1:4001/api/data
 
-    mongodb://127.0.0.1:4002
+- The Mongodb database is available: `mongodb://127.0.0.1:4002`
 
-The opentelemetry zpages for debugging are available:
+Once deployed:
 
-    http://127.0.0.1:55679/debug/servicez
-    http://127.0.0.1:55679/debug/tracez
+- The opentelemetry zpages for debugging are available:
+  - http://127.0.0.1:55679/debug/servicez
+  - http://127.0.0.1:55679/debug/tracez
 
-The jaeger tracing is available:
+- The jaeger tracing is available: http://127.0.0.1:16686
 
-    http://127.0.0.1:16686
-
-The lightstep tracing and metrics are available:
-
-    http://app.lightstep.com
-
-(you should create a free account from https://app.lightstep.com/signup/developer)
+- The lightstep tracing and metrics are available: http://app.lightstep.com
+  - you should first create a free account from https://app.lightstep.com/signup/developer
 
 
+## Installing OpenTelemetry
 
-In the dev environment updates to the code on the host OS automatically flow through to the microservices in the Docker containers which are rebooted automatically using nodemon. This means you can edit code without having to restart Docker Compose.
+You can follow the step by step approach below to install OpenTelemetry and instrument the application
 
-#### Run scripts to build, provision and deploy
-
-Before running each script, please ensure it is flagged as executable, eg:
-
-```bash
-chmod +x ./scripts/build-image.sh
-```
-
-The first time you do a build you need a Docker registry to push images to, run the follow script to provision your private Docker registry:
-
-```bash
-./scripts/provision-docker-registry.sh
-```
-
-Please take note of the username and password that are printed out after the Docker registry is created. You'll need to set these as environment variables as described in the previous section to be able to push your images to the registry.
-
-Build the Docker image:
-
-```bash
-./scripts/build-image.sh service
-./scripts/build-image.sh web
-```
-
-Push the Docker image to your container registry:
-
-```bash
-./scripts/push-image.sh service
-./scripts/push-image.sh web
-```
-
-Now provision your Kubernetes cluster:
-
-```bash
-./scripts/provision-kubernetes.sh
-```
-
-You can also run all the build scripts in go using:
-
-```bash
-./scripts/build.sh
-```
-
-You can also use the build from docker-compose
-```
-docker-compose up --build
-```
+If you want to rollback your files to initial application with no instrumentation, you can do it by using this release
+- [v0](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V0.1.0) are the original files without any Otel instrumentation
 
 
-### Integration with Bitbucket Pipelines
+### Step 1 - Add auto-instrumentation to your code
 
-This repo integrates with Bitbucket Pipelines for continuous integration / delivery.
+In this step, you will auto-instrument the NodeJS application with Otel libraries and send traces output to each component console logs
 
-If you put this repo in Bitbucket it will run the script in the file bitbucket-pipelines.yml on each push to the repository. This builds the Docker containers, copies the images to your private Docker Registry, provisions the environment on Azure and deploys the code.
+- Follow instructions in file [INSTALL_OTEL_STEP1.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALL_OTEL_STEP1.md)
 
-Please make sure you have created a private Docker registry already as mentioned in the previous section.
+- For solution, you can download release [v1](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V1.0.0)
 
-Please see the earlier section that lists [the environment variables you must set in Bitbucket](https://confluence.atlassian.com/bitbucket/variables-in-pipelines-794502608.html)
 
-Although please don't set the VERSION environment variable for Bitbucket, that's already set to the build number from Bitbucket Pipelines.
+### Step 2 - Send traces to OpenTelemetry Collector
+
+In this step, you will redirect the traces output collected before to an OpenTelemetry Collector and understand how to debug Collector behavior using console and zpages
+
+- Follow instructions in file [INSTALL_OTEL_STEP2.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALL_OTEL_STEP2.md)
+
+- For solution, you can download release
+  - [v2a](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V2.0.0a) is using HTTP protocol to forward traces
+  - [v2b](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V2.0.0b) is using GRPC protocol to forward traces
+
+
+
+### Step 3 - Send traces from Collector to External backends
+
+In this step, we will redirect the traces output from Otel-collector to external backends (Jaeger deployed locally and Lightstep in SaaS)
+
+- Follow instructions in file [INSTALL_OTEL_STEP3.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALL_OTEL_STEP3.md)
+
+- For solution, you can download release [v3](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V3.0.0)
+
+
+### Step 4 - Add custom attributes, log events and spans
+
+In this step, we will add some manual instrumentation in addition to auto-instrumentation.
+We will add some custom attributes, log events and also create new spans.
+
+- Follow instructions in file [INSTALL_OTEL_STEP4.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALL_OTEL_STEP4.md)
+
+- For solution, you can download release [v4](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V4.0.0)
+
+
+### Step 5 - Add resources metrics
+(TBD)
+
+
+### Step 6 - Add custom metrics to your traces
+(TBD)
+
 
 ## Resources
 
-Setting up Terraform for Azure
-https://docs.microsoft.com/en-us/azure/virtual-machines/linux/terraform-install-configure
+OpenTelemetry for nodeJS
+- https://opentelemetry.io/docs/instrumentation/js/getting-started/nodejs/
 
-Creating a service principle:
-https://www.terraform.io/docs/providers/azurerm/authenticating_via_service_principal.html
+Official OpenTelemetry Collector containers in docker hub
+- https://hub.docker.com/r/otel/opentelemetry-collector
+- https://hub.docker.com/r/otel/opentelemetry-collector-contrib
 
-https://docs.microsoft.com/en-us/azure/terraform/terraform-create-k8s-cluster-with-tf-and-aks
-https://www.terraform.io/docs/providers/azurerm/r/kubernetes_cluster.html
+OpenTelemetry Collector Github Project
+- https://github.com/open-telemetry/opentelemetry-collector
+- https://github.com/open-telemetry/opentelemetry-collector-contrib
 
-Great video from Scott Hanselman
-https://www.youtube.com/watch?v=iECZMWIQfgc
+OpenTelemetry NodeJS Github project
+- https://github.com/open-telemetry/opentelemetry-js
+
+OpenTelemetry eLearning video (1h10min)
+- https://www.youtube.com/watch?v=r8UvWSX3KA8
+
+For more information regarding original project, please refer to file [ORIGINAL_README.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/ORIGINAL_README.md)
+
+
+## Troubleshoot
+
+- getting error `"error": "Permanent error: rpc error: code = Internal desc = unexpected HTTP status code received from server: 400 (Bad Request); malformed header: missing HTTP content-type"` when sending spans to Lightstep
+
+  => check value of your LIGHTSTEP_ACCESS_TOKEN with `echo $LIGHTSTEP_ACCESS_TOKEN`
+
+  => if not set, initialize it with `export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>` then deploy again with `docker-compose up`

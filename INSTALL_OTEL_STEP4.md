@@ -1,0 +1,51 @@
+# INSTALLING OPENTELEMETRY STEP 4
+
+## v4 - Add custom attributes and log events
+
+- Edit `docker-compose.yml` file, for each line `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>`, add a new attribute `service.version=4.0.0` with a comma separator, so lines become something like
+```yaml
+- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>,service.version=4.0.0
+```
+
+- In `/src` folder of the web component, update file `index.js` file with code below:
+    - Add the OpenTelemetry library by putting this at top of your code
+    ```java
+    const api = require('@opentelemetry/api');
+    ```
+
+    - in the `main()` function, in the `app.get("/", (req, res) => {` part, add code to create custom attributes
+```java
+// access the current span from active context
+let activeSpan = api.trace.getSpan(api.context.active());
+// add an attribute
+activeSpan.setAttribute('nbLoop', nbLoop);
+activeSpan.setAttribute('weather', weather);
+```
+
+- In the `main()` function, in the `app.get("/api/data", (req, res) => {` part, add code to create custom log events
+```java
+  // access the current span from active context
+  let activeSpan = api.trace.getSpan(api.context.active());
+  // log an event and include some structured data.
+  activeSpan.addEvent(`Running on http://${HOST}:${PORT}`);
+```
+
+- Replace the `generateWork` function with code below
+```java
+async function generateWork(nb) {
+  for (let i = 0; i < Number(nb); i++) {
+    // create a new span
+    // if not put as arg, current span is automatically used as parent
+    // and the span you create automatically become the current one
+    let span = tracer.startSpan(`Looping ${i}`);
+    // log an event and include some structured data. This replace the logger to file
+    span.addEvent(`*** DOING SOMETHING ${i}`);
+    // wait for 50ms to simulate some work
+    await sleep(50);
+    // don't forget to always end the span to flush data out
+    span.end();
+  }
+}
+```
+
+- As you didn't add any new library, you don't need to rebuild or redeploy to take into account your change, you can directly test it
