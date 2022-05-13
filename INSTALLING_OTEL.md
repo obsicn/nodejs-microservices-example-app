@@ -23,12 +23,12 @@ If you don't find files in a specific version, it may just be because this file 
 
   - Update `package.json`file to add OpenTelemetry dependencies, add libraries below
   Go to each component folder and install OpenTelemetry required modules
-  ```
+  ```bash
   npm install @opentelemetry/sdk-node @opentelemetry/api @opentelemetry/auto-instrumentations-node
   ```
 
   - In each component `/src` folder, create a `tracing.js` file with code below
-  ```
+  ```java
   const opentelemetry = require("@opentelemetry/sdk-node");
   const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
 
@@ -47,13 +47,13 @@ If you don't find files in a specific version, it may just be because this file 
     ```
 
   - Rebuild your application containers with
-  ```
+  ```bash
   docker-compose up --build
   ```
 
   - Test again your application going to http://localhost:4000 and http://localhost:4001/api/data
     - you should see a json trace file in the logs of each component, like:
-    ```
+    ```json
     {
 web               |   traceId: '96c2e7afc176f9ac78c19a5ea37fda35',
 web               |   parentId: 'c0e5186081aa61b2',
@@ -68,7 +68,7 @@ web               | }
 
 - Edit `docker-compose.yml` file in root folder
   - add an OpenTelemetry collector container using lines below (note we will use the collector from contrib community as it contains more receivers, processors and exporters)
-```
+```yaml
 otel-collector:
   image: otel/opentelemetry-collector-contrib:0.40.0
   container_name: otel-collector
@@ -85,7 +85,7 @@ otel-collector:
 
 - Edit again the `docker-compose.yml` file to set nodeJS modules to export to our new OpenTelemetry Collector
   - in the `environment` section for each nodeJS container, add the variables below (an alternative would be to put these properties directly in `tracing.js` code)
-```
+```yaml
 #environment:
   - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
   - OTEL_RESOURCE_ATTRIBUTES=service.name=<web or service depending on the container>
@@ -94,7 +94,7 @@ otel-collector:
 - Create a file `config.yaml` in folder `/otel-collector/conf`
 
 - Edit the file and put content below
-```
+```yaml
 extensions:
   # This extension is used to provide a debugging zpages traces_endpoint
   # see https://github.com/open-telemetry/opentelemetry-collector/blob/main/extension/zpagesextension/README.md for more details
@@ -133,13 +133,13 @@ service:
 - For sending traces using http protocol
 
 - Go to each component (web and service), and install the module to export traces to collector through otlp protocol by running
-```
+```bash
 npm install @opentelemetry/exporter-trace-otlp-http
 ```
 
 - Go to each component `/src` folder and update `tracing.js` code with code below
   - import a new const, by adding line
-  ```
+  ```java
   const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
   ```
   (at the beginning of the file where all const are defined)
@@ -153,7 +153,7 @@ npm install @opentelemetry/exporter-trace-otlp-http
 
 - Test standalone your collector by sending him a trace
   - from `./otel-collector` folder, run
-  ```
+  ```bash
   curl -iv -H "Content-Type: application/json" http://127.0.0.1:4318/v1/traces -d @./test/small_data.json
   ```
   - both in the otel-collector container console and in page http://127.0.0.1:55679/debug/tracez, you should see a new trace appearing
@@ -172,7 +172,7 @@ npm install @opentelemetry/exporter-trace-otlp-http
   - the port for grpc is 4317 (it replaces 4318 for http)
 
   - for nodeJS, install module `@opentelemetry/exporter-trace-otlp-grpc`
-  ```
+  ```bash
   npm install @opentelemetry/exporter-trace-otlp-grpc
   ```
 
@@ -197,7 +197,7 @@ Here, we will add a local and a remote backend behind the collector in order to 
 
 - Edit the collector `config.yaml` file
   - in the `exporters:` section, add the following
-```
+```yaml
 exporters:
   logging:
     loglevel: debug
@@ -273,7 +273,7 @@ docker-compose up
 
 - In `/src` folder of the web component, update file `index.js` file with code below:
     - Add the OpenTelemetry library by putting this at top of your code
-    ```
+    ```java
     const api = require('@opentelemetry/api');
     ```
 
@@ -295,7 +295,7 @@ activeSpan.setAttribute('weather', weather);
 ```
 
 - Replace the `generateWork` function with code below
-```
+```java
 async function generateWork(nb) {
   for (let i = 0; i < Number(nb); i++) {
     let span = tracer.startSpan(`Looping ${i}`);
