@@ -221,7 +221,7 @@ exporters:
 ```
 
   - in the `services:` section, edit your `traces:` pipeline with the following
-```
+```yaml
 pipelines:
   traces:
     receivers: [otlp]
@@ -232,7 +232,7 @@ pipelines:
 
 - Edit the `docker-compose.yml` file
   - add the jaeger container
-```
+```yaml
 jaeger:
   image: jaegertracing/all-in-one:1.30
   container_name: jaeger
@@ -242,7 +242,7 @@ jaeger:
 ```
 
   - add an environment variable for your otel collector container
-```
+```yaml
 environment:
   - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
 ```
@@ -266,7 +266,7 @@ docker-compose up
 ## v4 - Add custom attributes and log events
 
 - Edit `docker-compose.yml` file, for each line `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>`, add a new attribute `service.version=4.0.0` with a comma separator, so lines become something like
-```
+```yaml
 - OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>,service.version=4.0.0
 ```
 
@@ -331,8 +331,8 @@ https://github.com/open-telemetry/opentelemetry-collector-contrib
 OpenTelemetry NodeJS Github project
 https://github.com/open-telemetry/opentelemetry-js
 
-OpenTelemetry eLearning
-
+OpenTelemetry eLearning video (1h10min)
+https://www.youtube.com/watch?v=r8UvWSX3KA8
 
 
 ## Troubleshoot
