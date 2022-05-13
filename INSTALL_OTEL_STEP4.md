@@ -1,6 +1,6 @@
 # INSTALLING OPENTELEMETRY STEP 4
 
-## v4 - Add custom attributes and log events
+## Add custom attributes
 
 - Edit `docker-compose.yml` file, for each line `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>`, add a new attribute `service.version=4.0.0` with a comma separator, so lines become something like
 ```yaml
@@ -22,6 +22,9 @@ activeSpan.setAttribute('nbLoop', nbLoop);
 activeSpan.setAttribute('weather', weather);
 ```
 
+
+## Add log events
+
 - In the `main()` function, in the `app.get("/api/data", (req, res) => {` part, add code to create custom log events
 ```java
   // access the current span from active context
@@ -29,6 +32,9 @@ activeSpan.setAttribute('weather', weather);
   // log an event and include some structured data.
   activeSpan.addEvent(`Running on http://${HOST}:${PORT}`);
 ```
+
+
+## Create spans
 
 - Replace the `generateWork` function with code below
 ```java
@@ -49,3 +55,8 @@ async function generateWork(nb) {
 ```
 
 - As you didn't add any new library, you don't need to rebuild or redeploy to take into account your change, you can directly test it
+
+- Test again you application with http://localhost:4000 and http://localhost:4000/api/data and look at results in
+  - zpages: http://127.0.0.1:55679/debug/tracez
+  - jaeger: http://localhost:16686/search
+  - lightstep: https://app.lightstep.com/<your_project>/explore

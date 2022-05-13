@@ -57,17 +57,17 @@ environment:
   - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
 ```
 
-- On the shell windows where you run your docker-compose command, export the value of you LIGHTSTEP_ACCESS_TOKEN:
+- On the shell windows where you run your docker-compose command, export the value of your `LIGHTSTEP_ACCESS_TOKEN`:
 ```bash
 export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>
 ```
 
-- Restart you docker-compose (no need to rebuild as we don't change code)
+- Restart you docker-compose (no need to rebuild as we didn't change any code)
 ```bash
 docker-compose up
 ```
 
-- Test again you application with http://localhost:4000 and http://localhost:4001/Api/data and look at results in
+- Test again you application with http://localhost:4000 and http://localhost:4000/api/data and look at results in
   - zpages: http://127.0.0.1:55679/debug/tracez
   - jaeger: http://localhost:16686/search
   - lightstep: https://app.lightstep.com/<your_project>/explorer

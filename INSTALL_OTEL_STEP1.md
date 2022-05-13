@@ -2,7 +2,7 @@
 
 ## v1 - Add auto-instrumentation to your code
 
-  - Follow the steps below for each nodejs component, ie `/web` and `/service`
+- Follow the steps below for each nodejs component, ie `/web` and `/service`
 
   - Update `package.json` file to add OpenTelemetry dependencies:
   ```json
@@ -38,7 +38,7 @@
   docker-compose up --build
   ```
 
-  - Test again your application going to http://localhost:4000 and http://localhost:4001/api/data
+  - Test again your application going to http://localhost:4000 and http://localhost:4000/api/data
     - you should see a json trace file in the logs of each component, like:
     ```
         {web              |   traceId: '96c2e7afc176f9ac78c19a5ea37fda35',
