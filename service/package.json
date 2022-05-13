@@ -1,7 +1,7 @@
 {
   "name": "nodejs-microservices-example",
-  "version": "1.0.0",
-  "description": "An example of Nodejs microservices",
+  "version": "1.1.0",
+  "description": "An example of Nodejs microservices with Otel",
   "main": "./src/index.js",
   "scripts": {
     "start": "node ./src/index.js",
@@ -10,19 +10,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ashleydavis/nodejs-microservices-example.git"
+    "url": "git+https://github.com/dimitrisfinas/nodejs-microservices-example.git"
   },
-  "author": "ashley@codecapers.com.au",
+  "author": "dimitris.finas@lightstep.com,ashley@codecapers.com.au",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ashleydavis/nodejs-microservices-example/issues"
+    "url": "https://github.com/dimitrisfinas/nodejs-microservices-example/issues"
   },
-  "homepage": "https://github.com/ashleydavis/nodejs-microservices-example#readme",
+  "homepage": "https://github.com/dimitrisfinas/nodejs-microservices-example#readme",
   "dependencies": {
-    "express": "^4.16.4",
-    "mongodb": "^3.1.4"
+    "express": "^4.18.1",
+    "mongodb": "^4.6.0"
   },
   "devDependencies": {
-    "nodemon": "^1.18.7"
+    "nodemon": "^2.0.16"
   }
 }
