@@ -37,14 +37,14 @@ docker compose up --build
 
 ## Useful URLs for test
 
-- web page is available at: http://127.0.0.1:4000
+- Web page is available at: http://127.0.0.1:4000
 
-- You can also query it with: http://127.0.0.1:4000?weather=<weather>
+- You can also query it with: http://127.0.0.1:4000?weather=XXX
   - take `sun`, `rain` or `snow` as weather value
 
 - An example REST API is also available: http://127.0.0.1:4001/api/data
 
-- The Mongodb database is available: `mongodb://127.0.0.1:4002`
+- The Mongodb database is available: (mongodb://127.0.0.1:4002)
 
 Once deployed:
 
@@ -70,7 +70,7 @@ If you want to rollback your files to initial application with no instrumentatio
 
 In this step, you will auto-instrument the NodeJS application with Otel libraries and send traces output to each component console logs
 
-- Follow instructions in file [INSTALL_OTEL_STEP1.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALL_OTEL_STEP1.md)
+- Follow instructions in file [INSTALL_OTEL_STEP1.md](/INSTALL_OTEL_STEP1.md)
 
 - For solution, you can download release [v1](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V1.0.0)
 

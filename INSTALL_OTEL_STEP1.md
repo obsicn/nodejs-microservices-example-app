@@ -4,10 +4,14 @@
 
   - Follow the steps below for each nodejs component, ie `/web` and `/service`
 
-  - Update `package.json` file to add OpenTelemetry dependencies, add libraries below
-  Go to each component folder and install OpenTelemetry required modules
-  ```bash
-  npm install @opentelemetry/sdk-node @opentelemetry/api @opentelemetry/auto-instrumentations-node
+  - Update `package.json` file to add OpenTelemetry dependencies:
+  ```json
+  "dependencies": {
+    "@opentelemetry/api": "^1.0.4",
+    "@opentelemetry/auto-instrumentations-node": "^0.28.0",
+    "@opentelemetry/sdk-node": "^0.28.0",
+    ...
+  }
   ```
 
   - In each component `/src` folder, create a `tracing.js` file with code below
