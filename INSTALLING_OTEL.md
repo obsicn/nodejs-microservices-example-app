@@ -53,15 +53,14 @@ If you don't find files in a specific version, it may just be because this file 
 
   - Test again your application going to http://localhost:4000 and http://localhost:4001/api/data
     - you should see a json trace file in the logs of each component, like:
-    ```json
-    {
-web               |   traceId: '96c2e7afc176f9ac78c19a5ea37fda35',
-web               |   parentId: 'c0e5186081aa61b2',
-...
-web               |   status: { code: 0 },
-web               |   events: []
-web               | }
-  ```
+    ```
+        {web               |   traceId: '96c2e7afc176f9ac78c19a5ea37fda35',
+        web               |   parentId: 'c0e5186081aa61b2',
+        ...
+        web               |   status: { code: 0 },
+        web               |   events: []
+        web               | }
+    ```
 
 
 ## v2a - Add OpenTelemetry collector (http)
