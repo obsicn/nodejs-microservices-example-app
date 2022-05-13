@@ -21,10 +21,10 @@ If you don't find files in a specific version, it may just be because this file 
 
   - Follow the steps below for each nodejs component, ie `/web` and `/service`
 
-  - Go to each component folder and install OpenTelemetry required modules
+  - Update `package.json`file to add OpenTelemetry dependencies, add libraries below
+  Go to each component folder and install OpenTelemetry required modules
   ```
-  npm install @opentelemetry/sdk-node @opentelemetry/api
-  npm install @opentelemetry/auto-instrumentations-node
+  npm install @opentelemetry/sdk-node @opentelemetry/api @opentelemetry/auto-instrumentations-node
   ```
 
   - In each component `/src` folder, create a `tracing.js` file with code below
@@ -41,9 +41,15 @@ If you don't find files in a specific version, it may just be because this file 
   ```
 
   - Update the start script to add `tracing.js` as Requirement
-    - edit file `nodemon.json` and replace `node ./src/index.js` by `node --require ./src/tracing.js ./src/index.js`
+    - edit file `nodemon.json` and replace `node ./src/index.js` by
+    ```
+    node --require ./src/tracing.js ./src/index.js
+    ```
 
-  - Rebuild your application containers with `docker-compose up --build`
+  - Rebuild your application containers with
+  ```
+  docker-compose up --build
+  ```
 
   - Test again your application going to http://localhost:4000 and http://localhost:4001/api/data
     - you should see a json trace file in the logs of each component, like:
@@ -126,11 +132,16 @@ service:
 
 - For sending traces using http protocol
 
-- Go to each component (web and service), and install the module to export traces to collector through otlp protocol by running `npm install @opentelemetry/exporter-trace-otlp-http`
+- Go to each component (web and service), and install the module to export traces to collector through otlp protocol by running
+```
+npm install @opentelemetry/exporter-trace-otlp-http
+```
 
 - Go to each component `/src` folder and update `tracing.js` code with code below
   - import a new const, by adding line
-  `const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');`
+  ```
+  const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
+  ```
   (at the beginning of the file where all const are defined)
 
   - Replace the console exporter
@@ -141,7 +152,10 @@ service:
 - Rebuild and restart you docker-compose `docker-compose up --build`
 
 - Test standalone your collector by sending him a trace
-  - from `./otel-collector` folder, run `curl -iv -H "Content-Type: application/json" http://127.0.0.1:4318/v1/traces -d @./test/small_data.json`
+  - from `./otel-collector` folder, run
+  ```
+  curl -iv -H "Content-Type: application/json" http://127.0.0.1:4318/v1/traces -d @./test/small_data.json
+  ```
   - both in the otel-collector container console and in page http://127.0.0.1:55679/debug/tracez, you should see a new trace appearing
 
 - Now test again your application on pages http://127.0.0.1:4000 and http://127.0.0.1:4000/api/data
@@ -154,12 +168,23 @@ service:
 
 - Beware of the following exceptions:
   - you don't have to update the collector `config.yaml` as we expose receivers for both protocols
+
   - the port for grpc is 4317 (it replaces 4318 for http)
-  - for nodeJS, install module `@opentelemetry/exporter-trace-otlp-grpc` and if you want to put url in your code, you should use `{url: 'grpc://otel-collector:4317'}` (no more `/v1/traces`)
+
+  - for nodeJS, install module `@opentelemetry/exporter-trace-otlp-grpc`
+  ```
+  npm install @opentelemetry/exporter-trace-otlp-grpc
+  ```
+
+  - if you want to put url in your code, you should use
+  ```
+  {url: 'grpc://otel-collector:4317'}``` (no more `/v1/traces`)
+  ```
 
   - for example, in docker-compose, the endpoint variable is now
-
-    `- OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317`
+```
+    - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
+```
 
   - should you use grpc or http? It depends on your tools/framework support. if possible use grpc as it is http/v2 and more performant, but some tools or framework still don't support it well (ex: GCP Cloud run containers)
 
@@ -224,9 +249,14 @@ environment:
 ```
 
 - On the shell windows where you run your docker-compose command, export the value of you LIGHTSTEP_ACCESS_TOKEN:
-`export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>`
+```bash
+export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>
+```
 
-- Restart you docker-compose `docker-compose up` (no need to rebuild as we don't change code)
+- Restart you docker-compose (no need to rebuild as we don't change code)
+```bash
+docker-compose up
+```
 
 - Test again you application with http://localhost:4000 and http://localhost:4001/Api/data and look at results in
   - zpages: http://127.0.0.1:55679/debug/tracez
@@ -236,13 +266,19 @@ environment:
 
 ## v4 - Add custom attributes and log events
 
-- Edit `docker-compose.yml` file, for each line `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>`, add a new attribute `service.version=4.0.0` with a comma separator, so lines become something like `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>,service.version=4.0.0`
+- Edit `docker-compose.yml` file, for each line `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>`, add a new attribute `service.version=4.0.0` with a comma separator, so lines become something like
+```
+- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>,service.version=4.0.0
+```
 
 - In `/src` folder of the web component, update file `index.js` file with code below:
-    - Add the OpenTelemetry library by putting this at top of your code `const api = require('@opentelemetry/api');`
+    - Add the OpenTelemetry library by putting this at top of your code
+    ```
+    const api = require('@opentelemetry/api');
+    ```
 
     - in the `main()` function, in the `app.get("/", (req, res) => {` part, add code to create custom attributes
-```
+```java
 // access the current span from active context
 let activeSpan = api.trace.getSpan(api.context.active());
 // add an attribute
@@ -251,7 +287,7 @@ activeSpan.setAttribute('weather', weather);
 ```
 
 - In the `main()` function, in the `app.get("/api/data", (req, res) => {` part, add code to create custom log events
-```
+```java
   // access the current span from active context
   let activeSpan = api.trace.getSpan(api.context.active());
   // log an event and include some structured data.
@@ -295,6 +331,9 @@ https://github.com/open-telemetry/opentelemetry-collector-contrib
 
 OpenTelemetry NodeJS Github project
 https://github.com/open-telemetry/opentelemetry-js
+
+OpenTelemetry eLearning
+
 
 
 ## Troubleshoot

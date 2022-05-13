@@ -14,7 +14,7 @@ Need to build a microservices application? Learn how to do this with [Bootstrapp
 
 ## Installing OpenTelemetry
 
-- Please refer to file `INSTALLING_OTEL.md`
+- Please refer to file [INSTALLING_OTEL.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALLING_OTEL.md)
 
 - You will find files in different versions in this repository
   - `v0` are the original files without any Otel instrumentation
