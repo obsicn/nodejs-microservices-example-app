@@ -1,6 +1,6 @@
 # INSTALLING OPENTELEMETRY STEP 3
 
-## v3 - Add backends
+## Add backends
 
 Here, we will add a local and a remote backend behind the collector in order to provide a GUI and analysis tools to our traces.
 
@@ -62,6 +62,8 @@ environment:
 export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>
 ```
 
+## Restart and test
+
 - Restart you docker-compose (no need to rebuild as we didn't change any code)
 ```bash
 docker-compose up
@@ -71,3 +73,6 @@ docker-compose up
   - zpages: http://127.0.0.1:55679/debug/tracez
   - jaeger: http://localhost:16686/search
   - lightstep: https://app.lightstep.com/<your_project>/explorer
+
+- You should see your traces in both backends and also see the services diagram presenting your architecture
+> Compared to Jaeger, Lightstep add additional capabilities to correlate collected traces for root cause analysis of your errors or latency

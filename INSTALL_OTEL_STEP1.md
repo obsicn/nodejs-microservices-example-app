@@ -1,6 +1,6 @@
 # INSTALLING OPENTELEMETRY STEP 1
 
-## v1 - Add auto-instrumentation to your code
+## Add auto-instrumentation to your code
 
 - Follow the steps below for each nodejs component, ie `/web` and `/service`
 
@@ -33,18 +33,21 @@
     node --require ./src/tracing.js ./src/index.js
     ```
 
-  - Rebuild your application containers with
-  ```bash
-  docker-compose up --build
-  ```
 
-  - Test again your application going to http://localhost:4000 and http://localhost:4000/api/data
-    - you should see a json trace file in the logs of each component, like:
-    ```
-        {web              |   traceId: '96c2e7afc176f9ac78c19a5ea37fda35',
-        web               |   parentId: 'c0e5186081aa61b2',
-        ...
-        web               |   status: { code: 0 },
-        web               |   events: []
-        web               | }
-    ```
+## Rebuild and test
+
+- Rebuild your application containers with
+```bash
+docker-compose up --build
+```
+
+- Test again your application going to http://localhost:4000 and http://localhost:4000/api/data
+  - you should see a json trace file in the logs of each component, like:
+  ```
+      {web              |   traceId: '96c2e7afc176f9ac78c19a5ea37fda35',
+      web               |   parentId: 'c0e5186081aa61b2',
+      ...
+      web               |   status: { code: 0 },
+      web               |   events: []
+      web               | }
+  ```

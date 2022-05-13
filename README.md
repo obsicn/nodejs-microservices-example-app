@@ -79,7 +79,7 @@ In this step, you will auto-instrument the NodeJS application with Otel librarie
 
 In this step, you will redirect the traces output collected before to an OpenTelemetry Collector and understand how to debug Collector behavior using console and zpages
 
-- Follow instructions in file [INSTALL_OTEL_STEP2.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALL_OTEL_STEP2.md)
+- Follow instructions in file [INSTALL_OTEL_STEP2.md](/INSTALL_OTEL_STEP2.md)
 
 - For solution, you can download release
   - [v2a](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V2.0.0a) is using HTTP protocol to forward traces
@@ -91,7 +91,7 @@ In this step, you will redirect the traces output collected before to an OpenTel
 
 In this step, we will redirect the traces output from Otel-collector to external backends (Jaeger deployed locally and Lightstep in SaaS)
 
-- Follow instructions in file [INSTALL_OTEL_STEP3.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALL_OTEL_STEP3.md)
+- Follow instructions in file [INSTALL_OTEL_STEP3.md](/INSTALL_OTEL_STEP3.md)
 
 - For solution, you can download release [v3](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V3.0.0)
 
@@ -101,7 +101,7 @@ In this step, we will redirect the traces output from Otel-collector to external
 In this step, we will add some manual instrumentation in addition to auto-instrumentation.
 We will add some custom attributes, log events and also create new spans.
 
-- Follow instructions in file [INSTALL_OTEL_STEP4.md](https://github.com/dimitrisfinas/nodejs-microservices-example/blob/master/INSTALL_OTEL_STEP4.md)
+- Follow instructions in file [INSTALL_OTEL_STEP4.md](/INSTALL_OTEL_STEP4.md)
 
 - For solution, you can download release [v4](https://github.com/dimitrisfinas/nodejs-microservices-example/releases/tag/V4.0.0)
 

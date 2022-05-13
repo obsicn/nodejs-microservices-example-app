@@ -4,10 +4,10 @@ For this step, you have 2 different options to connect between OTel SDK and the 
 
 Should you use GRPC or HTTP?
 
-It depends on your tools/framework support: if possible use GRPC as it is http/v2 and more performant, but some tools or framework still don't support it well (ex: GCP Cloud run containers) or sometimes you have gateways or firewalls that forbids GRPC.
+It depends on your tools/framework support: if possible use GRPC as it is http/v2 and more performant, but some tools or framework still don't support it well (ex: GCP Cloud run containers) or, sometimes, you may encounter gateways or firewalls that forbids GRPC.
 
 
-## v2a - Add OpenTelemetry collector (HTTP)
+## Option A) Using HTTP to send to OpenTelemetry collector
 
 - Follow the steps below for each nodejs component, ie `/web` and `/service`
 
@@ -46,10 +46,10 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
   - OTEL_RESOURCE_ATTRIBUTES=service.name=<web or service depending on the container>
 ```
 
-- Skip section "v2b" below and go directly to "Steps common to v2a and v2b"
+- Skip section "Option B)" below and go directly to "Steps common to A) and B)"
 
 
-## v2b - Add OpenTelemetry collector (GRPC)
+## Option B) Using GRPC to send to OpenTelemetry collector
 
 - Follow the steps below for each nodejs component, ie `/web` and `/service`
 
@@ -88,10 +88,10 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
   - OTEL_RESOURCE_ATTRIBUTES=service.name=<web or service depending on the container>
 ```
 
-- Go to section "Steps common to v2a and v2b"
+- Go to section "Steps common to A) and B)"
 
 
-## Steps common to v2a and v2b
+## Steps common to A) and B)
 
 - Edit `docker-compose.yml` file in root folder
   - add an OpenTelemetry collector container using lines below
@@ -154,6 +154,8 @@ service:
   extensions: [zpages]
 ```
 
+
+## Rebuild and test
 
 - Rebuild and restart you docker-compose
 ```bash

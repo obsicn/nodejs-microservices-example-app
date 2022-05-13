@@ -54,9 +54,18 @@ async function generateWork(nb) {
 }
 ```
 
+
+## Test
+
 - As you didn't add any new library, you don't need to rebuild or redeploy to take into account your change, you can directly test it
 
 - Test again you application with http://localhost:4000 and http://localhost:4000/api/data and look at results in
   - zpages: http://127.0.0.1:55679/debug/tracez
   - jaeger: http://localhost:16686/search
   - lightstep: https://app.lightstep.com/<your_project>/explore
+
+- Look at attributes list of the `GET` operations to see your added attributes
+
+- Now, you can filter your search based on the new `weather` attributes with any value `sun`, `rain`or `snow`
+
+- You can also group your traces based on `weather` in order to see differences in response time or error status
