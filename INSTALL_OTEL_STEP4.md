@@ -1,71 +1,84 @@
 # INSTALLING OPENTELEMETRY STEP 4
 
-## Add custom attributes
+# BACKENDS
 
-- Edit `docker-compose.yml` file, for each line `- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>`, add a new attribute `service.version=4.0.0` with a comma separator, so lines become something like
+In this step, we will redirect all telemetry data (traces) collected before to different backends.
+
+Here, Jaeger and Lightstep will serve as examples.
+
+## Add backends
+
+Here, we will add a local and a remote backend behind the collector in order to provide a GUI and analysis tools to our traces.
+
+- Edit the collector `config.yaml` file
+  - in the `exporters:` section, add the following
 ```yaml
-- OTEL_RESOURCE_ATTRIBUTES=service.name=<yourServiceName>,service.version=4.0.0
+exporters:
+  logging:
+    loglevel: debug
+
+  # configuring otlp to Lightstep public satellites
+  otlp/lightstep:
+    endpoint: ingest.lightstep.com:443
+    headers:
+      "lightstep-access-token": "${LIGHTSTEP_ACCESS_TOKEN}"
+    tls:
+      insecure: false
+      insecure_skip_verify: true
+#      cert_file: file.cert
+#      key_file: file.key
+#      ca_file:
+
+  # configure collector to send data to jaeger
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
 ```
 
-- In `/src` folder of the web component, update file `index.js` file with code below:
-    - Add the OpenTelemetry library by putting this at top of your code
-    ```java
-    const api = require('@opentelemetry/api');
-    ```
+  - in the `services:` section, edit your `traces:` pipeline with the following
+```yaml
+pipelines:
+  traces:
+    receivers: [otlp]
+    processors: [batch]
+    exporters: [logging, jaeger, otlp/lightstep]
+```
+  - save you updates
 
-    - in the `main()` function, in the `app.get("/", (req, res) => {` part, add code to create custom attributes
-```java
-// access the current span from active context
-let activeSpan = api.trace.getSpan(api.context.active());
-// add an attribute
-activeSpan.setAttribute('nbLoop', nbLoop);
-activeSpan.setAttribute('weather', weather);
+- Edit the `docker-compose.yml` file
+  - add the jaeger container
+```yaml
+jaeger:
+  image: jaegertracing/all-in-one:1.30
+  container_name: jaeger
+  ports:
+    - 14250:14250
+    - 16686:16686
 ```
 
-
-## Add log events
-
-- In the `main()` function, in the `app.get("/api/data", (req, res) => {` part, add code to create custom log events
-```java
-  // access the current span from active context
-  let activeSpan = api.trace.getSpan(api.context.active());
-  // log an event and include some structured data.
-  activeSpan.addEvent(`Running on http://${HOST}:${PORT}`);
+  - add an environment variable for your otel collector container
+```yaml
+environment:
+  - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
 ```
 
-
-## Create spans
-
-- Replace the `generateWork` function with code below
-```java
-async function generateWork(nb) {
-  for (let i = 0; i < Number(nb); i++) {
-    // create a new span
-    // if not put as arg, current span is automatically used as parent
-    // and the span you create automatically become the current one
-    let span = tracer.startSpan(`Looping ${i}`);
-    // log an event and include some structured data. This replace the logger to file
-    span.addEvent(`*** DOING SOMETHING ${i}`);
-    // wait for 50ms to simulate some work
-    await sleep(50);
-    // don't forget to always end the span to flush data out
-    span.end();
-  }
-}
+- On the shell windows where you run your docker-compose command, export the value of your `LIGHTSTEP_ACCESS_TOKEN`:
+```bash
+export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>
 ```
 
+## Restart and test
 
-## Test
-
-- As you didn't add any new library, you don't need to rebuild or redeploy to take into account your change, you can directly test it
+- Restart you docker-compose (no need to rebuild as we didn't change any code)
+```bash
+docker-compose up
+```
 
 - Test again you application with http://localhost:4000 and http://localhost:4000/api/data and look at results in
   - zpages: http://127.0.0.1:55679/debug/tracez
   - jaeger: http://localhost:16686/search
-  - lightstep: https://app.lightstep.com/<your_project>/explore
+  - lightstep: https://app.lightstep.com/<your_project>/explorer
 
-- Look at attributes list of the `GET` operations to see your added attributes
-
-- Now, you can filter your search based on the new `weather` attributes with any value `sun`, `rain`or `snow`
-
-- You can also group your traces based on `weather` in order to see differences in response time or error status
+- You should see your traces in both backends and also see the services diagram presenting your architecture
+> Compared to Jaeger, Lightstep add additional capabilities to correlate collected traces for root cause analysis of your errors or latency

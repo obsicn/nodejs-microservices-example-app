@@ -24,6 +24,7 @@ services:
     volumes:
      - ./tmp/npm:/root/.npm:z
      - ./service/src:/usr/src/app/src:z
+     - ./opentelemetry/src/tracing.js:/usr/src/app/src/tracing.js:z
     ports:
      - "4001:80"
     environment:
@@ -43,6 +44,7 @@ services:
     volumes:
      - ./tmp/npm:/root/.npm:z
      - ./web/src:/usr/src/app/src:z
+     - ./opentelemetry/src/tracing.js:/usr/src/app/src/tracing.js:z
     ports:
      - "4000:80"
     environment:

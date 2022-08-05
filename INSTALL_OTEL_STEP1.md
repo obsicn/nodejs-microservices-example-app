@@ -1,5 +1,10 @@
 # INSTALLING OPENTELEMETRY STEP 1
 
+# AUTO-INSTRUMENTATION
+
+In this step, we will auto-instrument our nodeJS application to collect traces and send all this information directly to the log each component of our application.
+
+
 ## Add auto-instrumentation to your code
 
 - Follow the steps below for each nodejs component, ie `/web` and `/service`
@@ -14,7 +19,7 @@
   }
   ```
 
-  - In each component `/src` folder, create a `tracing.js` file with code below
+  - In `/opentelemetry/src` folder, create a `tracing.js` file with code below
   ```java
   const opentelemetry = require("@opentelemetry/sdk-node");
   const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
@@ -30,7 +35,7 @@
   - Update the start script to add `tracing.js` as Requirement
     - edit file `nodemon.json` and replace `node ./src/index.js` by
     ```
-    node --require ./src/tracing.js ./src/index.js
+    node --require ../opentelemetry/src/tracing.js ./src/index.js
     ```
 
 

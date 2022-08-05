@@ -8,6 +8,7 @@ services:
      - "4002:27017"
     restart: always
 
+## db-fixture is put in comment so that we don't recreate the same data in DB again
 #  db-fixture:
 #    image: db-fixture
 #    build: ./db-fixture
@@ -24,6 +25,7 @@ services:
     volumes:
      - ./tmp/npm:/root/.npm:z
      - ./service/src:/usr/src/app/src:z
+     - ./opentelemetry/src/tracing.js:/usr/src/app/src/tracing.js:z
     ports:
      - "4001:80"
     environment:
@@ -52,6 +54,7 @@ services:
      - NODE_ENV=development
      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
      - OTEL_RESOURCE_ATTRIBUTES=service.name=web,service.version=4.0.0
+     - ./opentelemetry/src/tracing.js:/usr/src/app/src/tracing.js:z
     depends_on:
      - service
     restart: always

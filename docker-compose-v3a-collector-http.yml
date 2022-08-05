@@ -8,6 +8,7 @@ services:
      - "4002:27017"
     restart: always
 
+## db-fixture is put in comment so that we don't recreate the same data in DB again
 #  db-fixture:
 #    image: db-fixture
 #    build: ./db-fixture
@@ -24,14 +25,15 @@ services:
     volumes:
      - ./tmp/npm:/root/.npm:z
      - ./service/src:/usr/src/app/src:z
+     - ./opentelemetry/src/tracing.js:/usr/src/app/src/tracing.js:z
     ports:
      - "4001:80"
     environment:
      - PORT=80
      - DBHOST=mongodb://db:27017
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
-     - OTEL_RESOURCE_ATTRIBUTES=service.name=service
+     - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+     - OTEL_RESOURCE_ATTRIBUTES=service.name=service,service.version=3.0.0
     depends_on:
      - db
     restart: always
@@ -45,24 +47,22 @@ services:
     volumes:
      - ./tmp/npm:/root/.npm:z
      - ./web/src:/usr/src/app/src:z
+     - ./opentelemetry/src/tracing.js:/usr/src/app/src/tracing.js:z
     ports:
      - "4000:80"
     environment:
      - PORT=80
      - NODE_ENV=development
-     - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
-     - OTEL_RESOURCE_ATTRIBUTES=service.name=web
+     - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+     - OTEL_RESOURCE_ATTRIBUTES=service.name=web,service.version=3.0.0
     depends_on:
      - service
     restart: always
 
-## TELEMETRY CONTAINERS
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.47.0
     container_name: otel-collector
-    environment:
-      - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
     ports:
       # This is default port for listening to GRPC protocol
       - 4317:4317
@@ -72,10 +72,3 @@ services:
       - 55679:55679
     volumes:
       - ./otel-collector/conf:/etc/otelcol-contrib/
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.30
-    container_name: jaeger
-    ports:
-      - 14250:14250
-      - 16686:16686
