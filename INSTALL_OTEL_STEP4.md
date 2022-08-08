@@ -82,3 +82,10 @@ docker-compose up
 
 - You should see your traces in both backends and also see the services diagram presenting your architecture
 > Compared to Jaeger, Lightstep add additional capabilities to correlate collected traces for root cause analysis of your errors or latency
+
+
+## Troubleshoot
+
+- getting error `"error": "Permanent error: rpc error: code = Internal desc = unexpected HTTP status code received from server: 400 (Bad Request); malformed header: missing HTTP content-type"` when sending spans to Lightstep
+  => check value of your LIGHTSTEP_ACCESS_TOKEN with `echo $LIGHTSTEP_ACCESS_TOKEN`
+  => if not set, initialize it with `export LIGHTSTEP_ACCESS_TOKEN=<YOUR_VALUE>` then deploy again with `docker-compose up`
