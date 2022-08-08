@@ -9,8 +9,9 @@ We will also create custom spans.
 ## Add custom attributes using environment variables
 
 - Edit `docker-compose.yml` file, go to the environment section of services `web` and `service`
+
 - For each service, add an environment variable `OTEL_RESOURCE_ATTRIBUTES` with value a list of comma separated `<key>=<value>`
-- Example
+- Example:
 ```yaml
   web:
     environment:

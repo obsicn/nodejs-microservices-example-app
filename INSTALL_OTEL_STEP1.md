@@ -7,6 +7,19 @@ In this step, we will auto-instrument our nodeJS application to collect traces a
 
 ## Add auto-instrumentation to your code
 
+- In `/opentelemetry/src` folder, create a `tracing.js` file with code below
+```java
+const opentelemetry = require("@opentelemetry/sdk-node");
+const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
+
+const sdk = new opentelemetry.NodeSDK({
+  traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),
+  instrumentations: [getNodeAutoInstrumentations()]
+});
+
+sdk.start()
+```
+
 - Follow the steps below for each nodejs component, ie `/web` and `/service`
 
   - Update `package.json` file to add OpenTelemetry dependencies:
@@ -17,19 +30,6 @@ In this step, we will auto-instrument our nodeJS application to collect traces a
     "@opentelemetry/sdk-node": "^0.28.0",
     ...
   }
-  ```
-
-  - In `/opentelemetry/src` folder, create a `tracing.js` file with code below
-  ```java
-  const opentelemetry = require("@opentelemetry/sdk-node");
-  const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
-
-  const sdk = new opentelemetry.NodeSDK({
-    traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),
-    instrumentations: [getNodeAutoInstrumentations()]
-  });
-
-  sdk.start()
   ```
 
   - Update the start script to add `tracing.js` as Requirement

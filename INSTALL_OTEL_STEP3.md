@@ -23,7 +23,7 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
   }
   ```
 
-  - Go to each `/src` folder and update `tracing.js` code with code below
+  - Go to `/opentelemetry/src` and update `tracing.js` code with code below
     - import a new const, by adding line
     ```java
     const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
@@ -66,7 +66,7 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
   }
   ```
 
-  - Go to each `/src` folder and update `tracing.js` code with code below
+  - Go to `/opentelemetry/src` folder and update `tracing.js` code with code below
     - import a new const, by adding line
     ```java
     const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
@@ -105,7 +105,7 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
 
 ```yaml
 otel-collector:
-  image: otel/opentelemetry-collector-contrib:0.47.0
+  image: otel/opentelemetry-collector-contrib:0.47
   container_name: otel-collector
   ports:
     # This is default port for listening to GRPC protocol
