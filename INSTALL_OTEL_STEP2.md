@@ -24,17 +24,20 @@ We will also create custom spans.
 - In `/src` folder of the web component, update file `index.js` file with code below:
     - Add the OpenTelemetry library by putting this at top of your code
     ```java
+    // import the open telemetry api library
     const api = require('@opentelemetry/api');
+    // create a tracer and name it after your package
+    const tracer = api.trace.getTracer('myInstrumentation');
     ```
 
     - in the `main()` function, in the `app.get("/", (req, res) => {` part, add code to create custom attributes
-```java
-// access the current span from active context
-let activeSpan = api.trace.getSpan(api.context.active());
-// add an attribute
-activeSpan.setAttribute('nbLoop', nbLoop);
-activeSpan.setAttribute('weather', weather);
-```
+    ```java
+    // access the current span from active context
+    let activeSpan = api.trace.getSpan(api.context.active());
+    // add an attribute
+    activeSpan.setAttribute('nbLoop', nbLoop);
+    activeSpan.setAttribute('weather', weather);
+    ```
 
 
 ## Add log events
@@ -73,7 +76,7 @@ async function generateWork(nb) {
 
 - As you didn't add any new library, you don't need to rebuild or redeploy to take into account your change, you can directly test it
 
-- Test again you application with http://localhost:4000 and http://localhost:4000/api/data and look at results in
+- Test again your application with http://localhost:4000 and http://localhost:4000/api/data and look at results in
   - zpages: http://127.0.0.1:55679/debug/tracez
   - jaeger: http://localhost:16686/search
   - lightstep: https://app.lightstep.com/<your_project>/explore
