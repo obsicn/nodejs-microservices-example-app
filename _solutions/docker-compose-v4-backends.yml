@@ -75,7 +75,7 @@ services:
 
 ## TELEMETRY CONTAINERS
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.47.0
+    image: otel/opentelemetry-collector-contrib:0.57.2
     container_name: otel-collector
     environment:
       - LIGHTSTEP_ACCESS_TOKEN=${LIGHTSTEP_ACCESS_TOKEN}
