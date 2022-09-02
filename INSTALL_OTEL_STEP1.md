@@ -20,6 +20,13 @@ const sdk = new opentelemetry.NodeSDK({
 sdk.start()
 ```
 
+- Edit `docker-compose.yml` file to add this `tracing.js` library to each of our service containers
+  - in the `volumes` section for each nodeJS container (`web` and `service`), add the line below
+  ```yaml
+  #volumes:
+    - ./opentelemetry/src/tracing.js:/usr/src/app/src/tracing.js:z
+  ```
+
 - Follow the steps below for each nodejs component, ie `/web` and `/service`
 
   - Update `package.json` file to add OpenTelemetry dependencies:
@@ -35,7 +42,7 @@ sdk.start()
   - Update the start script to add `tracing.js` as Requirement
     - edit file `nodemon.json` and replace `node ./src/index.js` by
     ```
-    node --require ../opentelemetry/src/tracing.js ./src/index.js
+    node --require ./src/tracing.js ./src/index.js
     ```
 
 
