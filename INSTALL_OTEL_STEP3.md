@@ -2,7 +2,7 @@
 
 # COLLECTOR
 
-In this step, we will
+In this step, we will redirect the traces output collected before to an OpenTelemetry Collector and understand how to debug Collector behavior using console and zpages extension
 
 You have 2 different options to connect between OTel SDK and the collector, either using HTTP or GRPC protocol.
 
@@ -99,29 +99,7 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
 
 ## Steps common to A) and B)
 
-- Edit `docker-compose.yml` file in root folder
-  - add an OpenTelemetry collector container using lines below
-  > we will use the collector from contributors community as it contains more receivers, processors and exporters
-
-```yaml
-otel-collector:
-  image: otel/opentelemetry-collector-contrib:0.47
-  container_name: otel-collector
-  ports:
-    # This is default port for listening to GRPC protocol
-    - 4317:4317
-    # This is default port for listening to HTTP protocol
-    - 4318:4318
-    # This is default port for zpages debugging
-    - 55679:55679
-  volumes:
-    # Path to Otel-Collector config file
-    - ./otel-collector/conf:/etc/otelcol-contrib/
-    # This is old path used in container for image below or equals to v0.40.0
-    #- ./otel-collector/conf:/etc/otel
-```
-
-- Create a file `config.yaml` in folder `/otel-collector/conf`
+- Create a configuration for your collector named `config.yaml` in folder `/opentelemetry/conf`
 
 - Edit the file and put content below
 ```yaml
@@ -144,7 +122,7 @@ processors:
   batch:
 
 exporters:
-  # Debugging exporter directly to system log
+  # Debugging exporter directly to collector system log
   logging:
     loglevel: debug
 
@@ -160,6 +138,28 @@ service:
   extensions: [zpages]
 ```
 
+- Edit `docker-compose.yml` file in root folder
+  - add an OpenTelemetry collector container using lines below
+  > we will use the collector from contributors community as it contains more receivers, processors and exporters
+
+```yaml
+otel-collector:
+  image: otel/opentelemetry-collector-contrib:0.57.2
+  container_name: otel-collector
+  ports:
+    # This is default port for listening to GRPC protocol
+    - 4317:4317
+    # This is default port for listening to HTTP protocol
+    - 4318:4318
+    # This is default port for zpages debugging
+    - 55679:55679
+  volumes:
+    # Path to Otel-Collector config file
+    - ./opentelemetry/conf:/etc/otelcol-contrib/
+    # This is old path used in container for image below or equals to v0.40.0
+    #- ./opentelemetry/conf:/etc/otel
+```
+
 
 ## Rebuild and test
 
@@ -169,9 +169,9 @@ docker-compose up --build
 ```
 
 - Test standalone your collector by sending him a trace
-  - from `./otel-collector` folder, run
+  - run
   ```bash
-  curl -iv -H "Content-Type: application/json" http://127.0.0.1:4318/v1/traces -d @./test/small_data.json
+  curl -iv -H "Content-Type: application/json" http://127.0.0.1:4318/v1/traces -d @./opentelemetry/test/small_data.json
   ```
   - both in the otel-collector container console and in page http://127.0.0.1:55679/debug/tracez, you should see a new trace appearing
 

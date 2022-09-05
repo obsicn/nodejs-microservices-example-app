@@ -87,7 +87,7 @@ services:
       # This is default port for zpages debugging
       - 55679:55679
     volumes:
-      - ./otel-collector/conf:/etc/otelcol-contrib/
+      - ./opentelemetry/conf:/etc/otelcol-contrib/
 
   jaeger:
     image: jaegertracing/all-in-one:1.30
