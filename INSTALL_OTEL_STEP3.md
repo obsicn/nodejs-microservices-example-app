@@ -31,7 +31,10 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
     > Paste this code at the beginning of the file where all const are defined
 
     - Replace the console exporter
-      - replace `traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),`
+      - replace
+      ```java
+      traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),
+      ```
       - by
       ```java
       traceExporter: new OTLPTraceExporter({}),
@@ -73,10 +76,12 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
     (at the beginning of the file where all const are defined)
 
     - Replace the console exporter
-      - replace ```java
+      - replace
+      ```java
       traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),
       ```
-      - by ```java
+      - by
+      ```java
       traceExporter: new OTLPTraceExporter({}),
       ```
       - (option) You can put the collector URL as property here instead of using environment variables in docker-compose, simply replace `traceExporter` definition by
