@@ -36,20 +36,19 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
       ```java
       traceExporter: new OTLPTraceExporter({}),
       ```
-      You can put the collector URL as property here instead of using environment variables in docker-compose, simply replace `traceExporter` definition by
-
+      - (option) You can put the collector URL as property here instead of using environment variables in docker-compose, simply replace `traceExporter` definition by
       ```java
       traceExporter: new OTLPTraceExporter({url: 'http://otel-collector:4318/v1/traces'}),
       ```
 
-- Edit `docker-compose.yml` file to set nodeJS modules to export to our new OpenTelemetry Collector
-  - in the `environment` section for each nodeJS container (`web` and `service`), add the variables below (an alternative would be to put these properties directly in `tracing.js` code)
-
-```yaml
-#environment:
-  - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-  - OTEL_RESOURCE_ATTRIBUTES=service.name=<web or service depending on the container>
-```
+- Edit `docker-compose.yml` file to set our services to export to our new OpenTelemetry Collector
+  - in the `environment` section for each nodeJS container (`web` and `service`), add the `OTEL_EXPORTER_OTLP_ENDPOINT` variable below (an alternative would be to put these properties directly in `tracing.js` code)
+  - also, check that attribute `service.name` is defined
+  ```yaml
+  #environment:
+    - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    - OTEL_RESOURCE_ATTRIBUTES=service.name=<web or service depending on the container>
+  ```
 
 - Skip section "Option B)" below and go directly to "Steps common to A) and B)"
 
@@ -74,25 +73,25 @@ It depends on your tools/framework support: if possible use GRPC as it is http/v
     (at the beginning of the file where all const are defined)
 
     - Replace the console exporter
-      - replace `traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),`
-      - by
-      ```java
+      - replace ```java
+      traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),
+      ```
+      - by ```java
       traceExporter: new OTLPTraceExporter({}),
       ```
-      You can put the collector URL as property here instead of using environment variables in docker-compose, simply replace `traceExporter` definition by
-
+      - (option) You can put the collector URL as property here instead of using environment variables in docker-compose, simply replace `traceExporter` definition by
       ```java
       traceExporter: new OTLPTraceExporter({url: 'grpc://otel-collector:4317'}),
       ```
 
-- Edit `docker-compose.yml` file to set nodeJS modules to export to our new OpenTelemetry Collector
-  - in the `environment` section for each nodeJS container (web and service), add the variables below (an alternative would be to put these properties directly in `tracing.js` code)
-
-```yaml
-#environment:
-  - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
-  - OTEL_RESOURCE_ATTRIBUTES=service.name=<web or service depending on the container>
-```
+- Edit `docker-compose.yml` file to set our services to export to our new OpenTelemetry Collector
+  - in the `environment` section for each nodeJS container (`web` and `service`), add the `OTEL_EXPORTER_OTLP_ENDPOINT` variable below (an alternative would be to put these properties directly in `tracing.js` code)
+  - also, check that attribute `service.name` is defined
+  ```yaml
+  #environment:
+    - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://otel-collector:4317
+    - OTEL_RESOURCE_ATTRIBUTES=service.name=<web or service depending on the container>
+  ```
 
 - Go to section "Steps common to A) and B)"
 
