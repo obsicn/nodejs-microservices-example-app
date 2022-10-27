@@ -1,7 +1,7 @@
 {
   "name": "nodejs-microservices-example",
   "version": "1.1.0",
-  "description": "An example of Nodejs microservices with Otel",
+  "description": "An example of Nodejs microservices with OpenTelemetry",
   "main": "./src/index.js",
   "scripts": {
     "start": "node ./src/index.js",
@@ -12,12 +12,12 @@
     "type": "git",
     "url": "git+https://github.com/dimitrisfinas/nodejs-microservices-example.git"
   },
-  "author": "dimitris.finas@lightstep.com,ashley@codecapers.com.au",
+  "author": "mike.whalen@lightstep.com,dimitris.finas@lightstep.com,ashley@codecapers.com.au",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dimitrisfinas/nodejs-microservices-example/issues"
+    "url": "https://github.com/lightstep/nodejs-microservices-workshop/issues"
   },
-  "homepage": "https://github.com/dimitrisfinas/nodejs-microservices-example#readme",
+  "homepage": "https://github.com/lightstep/nodejs-microservices-workshop#readme",
   "dependencies": {
     "express": "^4.18.1",
     "mongodb": "^4.6.0"

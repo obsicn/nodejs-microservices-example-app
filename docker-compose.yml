@@ -15,15 +15,15 @@ services:
     depends_on:
       - db
 
-  service:
-    image: service
+  users:
+    image: users
     build:
-      context: ./service
+      context: ./users
       dockerfile: Dockerfile-dev
-    container_name: service
+    container_name: users
     volumes:
      - ./tmp/npm:/root/.npm:z
-     - ./service/src:/usr/src/app/src:z
+     - ./users/src:/usr/src/app/src:z
     ports:
      - "4001:80"
     environment:
@@ -49,19 +49,5 @@ services:
      - PORT=80
      - NODE_ENV=development
     depends_on:
-     - service
+     - users
     restart: always
-
-## LOAD GENERATOR
-#  load-generator:
-#    image: loadimpact/k6:latest
-#    container_name: load-generator
-#    command: run --include-system-env-vars /src/load-test.js
-#    environment:
-#      - TARGET_HOST=web
-#      - TARGET_PORT=80
-#      - DURATION=30s
-#    volumes:
-#      - ./load-generator/src:/src/
-#    depends_on:
-#      - web
